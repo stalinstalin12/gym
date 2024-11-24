@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rubik+Wet+Paint&display=swap');
+
+
+.head-bg{
+    background-image: url('/images/gym1.jpg');
+    background-size: 100vw 100vh;
+    background-position: center;
+}
+.brandname{
+ font-family: Black Ops One;
+ font-size: larger;
+}
+nav{
+    width:100%;
+    background-image: linear-gradient(to right top, #000000, #1c0409, #2b070b, #3b0408, #4b0000);
+    
+}
+
+
+  /* <main-style> ============================ */
+  .menu_link {
+    color: #fff;
+    line-height: 2;
+    position: relative;
+  }
+  
+  .menu_link::before {
+    content: '';
+    width: 0;
+    height: 2px;
+    border-radius: 2px;
+    background-color: #fff;
+    position: absolute;
+    bottom: -.25rem;
+    right: 0;
+    transition: right .1s, width .3s, left .8s;
+  }
+  
+  .menu_link:hover::before {
+    width: 90%;
+    left: 0;
+  }

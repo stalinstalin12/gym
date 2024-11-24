@@ -1,0 +1,108 @@
+/* Signup.css */
+
+/* body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+  } */
+   body{
+    margin: 0;
+    padding: 0;
+    background-color: #ecececcc;
+    
+
+   }
+  
+  .signup-container {
+    background-repeat: no-repeat;
+    background-size: 100vw 100vh ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+   
+    height: 100vh
+  }
+  
+  .signup-card {
+    padding: 40px;
+    
+    padding-left: 20px;
+    width: 25vw;
+    height: auto ;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    border-radius: 10px;
+    text-align: center;
+
+    background-color:white;
+  }
+  
+  .signup-card h2 {
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: rgb(61, 41, 3);
+    
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="email"],
+  .form-group input[type="password"] {
+    width: 18vw;
+    padding: 12px;
+    border-radius: 5px;
+    
+    border: 1px solid #967979;
+    outline: none;
+  }
+  
+  .checkbox-group {
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    
+  }
+  .LoginText{
+    
+    color: rgb(2, 2, 2);
+   padding: 5px;
+   margin-top: 10px;
+   font-family: serif;
+   text-decoration: underline;
+   
+  }
+  
+  .register-button {
+    width: 8vw;
+    padding: 8px;
+    background-color: #c00000b4;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .register-button:hover {
+    background-color: #240005ef;
+  }
+  
+  .login-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #4b2a2a;
+  }
+  
