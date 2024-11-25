@@ -20,7 +20,7 @@
   
   .signup-container {
     background-repeat: no-repeat;
-    background-size: 100vw 100vh ;
+    background-size: 100vw  ;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,7 +31,8 @@
   
   .signup-card {
     padding: 40px;
-    
+    background-repeat: no-repeat;
+    background-image: url('./images/HR.webp');
     padding-left: 20px;
     width: 25vw;
     height: auto ;
@@ -45,7 +46,8 @@
   .signup-card h2 {
     font-weight: bold;
     margin-bottom: 20px;
-    color: rgb(61, 41, 3);
+    color: rgba(187, 0, 0, 0.911);
+    font-size: x-large;
     
   }
   
@@ -75,7 +77,7 @@
   }
   .LoginText{
     
-    color: rgb(2, 2, 2);
+    color: rgb(255, 255, 255);
    padding: 5px;
    margin-top: 10px;
    font-family: serif;
@@ -97,7 +99,7 @@
   }
   
   .register-button:hover {
-    background-color: #240005ef;
+    background-color: #68000e;
   }
   
   .login-link {

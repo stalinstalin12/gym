@@ -11,7 +11,8 @@ export default function Home(){
         const fetchProducts=async()=>{
           try{
             const response=await axios.get('http://localhost:4000/products');
-            setProducts(response.data.products);
+            console.log(response.data)
+            setProducts(response.data.data);
             setLoading(false);
           }
           catch(err){
@@ -38,6 +39,7 @@ export default function Home(){
           {error && <p className="text-red-500">{error}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.isArray(products) &&products.map((product) => (
+            
             <div key={product._id} className="bg-white shadow-md rounded-lg overflow-hidden">
               <img src={product.image} alt={product.title} className="w-full h-48 object-cover" />
               <div className="p-4">

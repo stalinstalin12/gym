@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rubik+Wet+Paint&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rubik+Wet+Paint&family=Faster+One&display=swap');
 
 
 .head-bg{
     background-image: url('/images/gym1.jpg');
-    background-size: 100vw 100vh;
+    background-size: 100vw;
     background-position: center;
 }
 .brandname{

@@ -75,7 +75,7 @@ export default function Signup() {
           alert("User created successfully as customer!");
             }
             else{
-                alert("user created successfully!"); 
+                alert("user created successfully as seller!"); 
                     
             }
             navigate('/Home');
@@ -115,7 +115,7 @@ export default function Signup() {
           </div>
           <div className="form-group checkbox-group">
             <input type="checkbox" id="isSeller" checked={isSeller} onChange={()=>setIsSeller(!isSeller)} />
-            <label htmlFor="isSeller"style={{color: 'black'}}>Seller?</label>
+            <label htmlFor="isSeller"style={{color: 'red '}}>Seller?</label>
           </div>
           <button type="submit" className="register-button">Register</button><br />
           
