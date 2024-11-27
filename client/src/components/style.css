@@ -1,10 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rubik+Wet+Paint&family=Faster+One&display=swap');
 
 
-.head-bg{
-    background-image: url('/images/gym1.jpg');
+
+
+.head-bg {
+    background-image: url('/images/gymbg.jpg');
     background-size: 100vw;
     background-position: center;
+    background-repeat: no-repeat;
 }
 .brandname{
  font-family: Black Ops One;

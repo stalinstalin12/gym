@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
+const path=require('path')
 
 const cors=require('cors');
 app.use(cors({ origin: 'http://localhost:5173' }))
@@ -16,7 +17,7 @@ app.get('/test', (req, res) => {
 
 //Serving static files
 app.use(express.static( "../client"));
-app.use('/uploads',express.static("./uploads"));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 //Database connection
 mongoConnect();

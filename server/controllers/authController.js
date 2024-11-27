@@ -4,6 +4,7 @@ const users = require('../db/models/users');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const user_type = require('../db/models/user_type');
 dotenv.config();
 
 exports.login = async function (req, res) {
@@ -11,6 +12,7 @@ exports.login = async function (req, res) {
 
         let email = req.body.email;
         console.log("email : ", email);
+        
 
         let password = req.body.password;
         console.log("password : ", password);
@@ -21,6 +23,12 @@ exports.login = async function (req, res) {
         console.log("user : ", user);
 
         if(user) {
+
+            let _id = user._id;
+            console.log("userid :", _id);
+            
+            let user_type = user.user_type;
+            console.log("user_type :", user_type);
 
             let db_password = user.password;
             console.log("db_password : ", db_password);
@@ -34,7 +42,10 @@ exports.login = async function (req, res) {
                 
                 let response = success_function({
                     statusCode : 200,
-                    data : token,
+                    data : {token,
+                        _id,
+                        user_type
+                    },
                     message : "Login successful",
                 });
 

@@ -17,21 +17,30 @@ function Signin() {
 
     try {
         const response = await axios.post('http://localhost:4000/login', { email, password });
-        console.log(response.data);
-        const { token, _id, user_type} = response.data.data;
+        console.log(response);
+        const { token,  _id, user_type} = response.data.data;
+        
         if(!response.data){
           alert('login failed')
         }
         else{
         localStorage.setItem('authToken', token);
-        localStorage.setItem('user', JSON.stringify(_id,user_type));
+        localStorage.setItem('id',_id);
+        localStorage.setItem('user_type',user_type);
         console.log(localStorage);
 
 
         alert("Login Successful");
         console.log("login successful");
         
-          navigate('/Home');
+        if(localStorage.user_type==='6738b6d920495c12314f4c4e'){
+          navigate('/Home');}
+        else if(localStorage.user_type==='6738b70b20495c12314f4c4f'){
+          navigate('/sellerHome')}
+        else{
+          alert("unknown usertype")
+        }
+        
           
         
        } 
