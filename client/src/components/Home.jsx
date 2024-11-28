@@ -5,7 +5,6 @@ export default function Home(){
     const[products,setProducts]=useState([]);
     const[loading,setLoading]=useState(true);
     const [error,setError]=useState(null);
-    const [cartItems, setCartItems] = useState([]); // Cart state
     const baseUrl = 'http://localhost:4000';  
 
     useEffect(()=>{
@@ -28,15 +27,7 @@ export default function Home(){
         fetchProducts();
     },[]);
 
-    const addToCart = (product) => {
-      setCartItems((prevCartItems) => {
-        // Avoid duplicates by checking if the product already exists in the cart
-        if (prevCartItems.some((item) => item._id === product._id)) {
-          return prevCartItems;
-        }
-        return [...prevCartItems, product];
-      });
-    };
+    
 
     return(
         <>
@@ -63,7 +54,7 @@ export default function Home(){
                 <p className="text-gray-900">{product.price}Rs</p>
                 <p className="text-gray-500">{product.category}</p>
                 <div className="flex justify-between align-middle">
-                <button className=" p-2 h-9 w-9 rounded-full bg-black hover:bg-gray-700 active:bg-red-800 active:outline-double"  onClick={() => addToCart(product)}>
+                <button className=" p-2 h-9 w-9 rounded-full bg-black hover:bg-gray-700 active:bg-red-800 active:outline-double" >
                   <img src="./public/images/cart2.png" alt="" width={20} height={20}/>
                 </button>
                 <button className="p-2 bg-black hover:bg-gray-600 rounded-full w-9 h-9 active:bg-red-800 active:outline-double" >
@@ -76,24 +67,7 @@ export default function Home(){
         </div>
       </div>
         </div>
-        <div className="mt-10">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Cart</h3>
-            {cartItems.length === 0 ? (
-              <p className="text-gray-500">Your cart is empty.</p>
-            ) : (
-              <ul className="space-y-4">
-                {cartItems.map((item) => (
-                  <li key={item._id} className="flex justify-between items-center bg-gray-100 p-4 rounded">
-                    <div>
-                      <h4 className="text-lg font-semibold">{item.title}</h4>
-                      <p className="text-gray-600">{item.price} Rs</p>
-                    </div>
-                    <img src={`${baseUrl}/${item.image}`} alt={item.title} className="w-16 h-16 object-cover rounded" />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        
         
       
 

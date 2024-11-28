@@ -10,6 +10,7 @@ const mongoConnect = require('./db/connect');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes=require('./routes/productRoutes')
+const cartRoute =require('./routes/cartRoute')
 
 app.get('/test', (req, res) => {
     res.status(200).send("Test successful");
@@ -35,6 +36,7 @@ app.use(userRoutes);
 //authRoutes
 app.use(authRoutes);
 app.use(productRoutes);
+app.use(cartRoute);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
