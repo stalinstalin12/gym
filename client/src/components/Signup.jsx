@@ -1,7 +1,9 @@
 import {Link } from "react-router-dom";
 import "./Signup.css";
 import { useState } from 'react';
-import axios from 'axios'
+import axios from 'axios';
+import {toast ,ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom"; 
 
 export default function Signup() {
@@ -71,26 +73,21 @@ export default function Signup() {
         
     
         if (response.status === 201) { 
-            if(response.data.isSeller===false){ 
-          alert("User created successfully as customer!");
-            }
-            else{
-                alert("user created successfully as seller!"); 
-                    
-            }
-            navigate('/Home');
+          toast.success("Your account has been created");
+            navigate('/Signin');
         } else {
-          alert(response.data.message || "Something went wrong!");
+          toast.error(response.data.message || "Something went wrong!");
         }
       } catch (error) {
         console.error("Error:", error);
-        alert(error.response?.data?.message || "Something went wrong");
+        toast.error(error.response?.data?.message || "Something went wrong");
       }
   };
 
  
   return (
     <div className="signup-container">
+      <ToastContainer />
       <div className="signup-card">
         <h2>Sign up</h2>
         <form onSubmit={addUser}>

@@ -13,7 +13,7 @@ module.exports = {
         {  "name" : "admin",
           "email" : "admin@gmail.com",
           "password" : hashed_pass,
-          "user_type" : "6738b6c820495c12314f4c4d"
+          "user_type" : "674ddd8ada8e8225185e33b6"
           
         }
         
@@ -26,7 +26,7 @@ module.exports = {
   down: (models, mongoose) => {
    
     return models.users.deleteMany({
-      _id: "6738b6c820495c12314f4c4d"
+      _id: "674ddd8ada8e8225185e33b6"
     }).then(res => {
       // Prints "1"
       console.log(res.deletedCount);

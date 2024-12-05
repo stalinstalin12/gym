@@ -168,5 +168,34 @@ exports.getSingleUser = async function (req, res) {
     }
 }
 
-//Complete update function
-//Complete delete function
+exports.deleteUser=async function (req,res) {
+    try {
+        let id=req.params.id;
+        
+        let deleteuser=await users.deleteOne({_id:id});
+
+        if(deleteuser){
+            let response=success_function({
+                statusCode:200,
+                message:"User deleted successfully"
+            });
+            res.status(response.statusCode).send(response.statusCode);  
+        }
+        else{
+            let response=error_function({
+                statusCode:400,
+                message:"failed to delete"
+            });
+            res.status(response.statusCode).send(response.statusCode);
+        }
+    }
+    
+    catch (error) {
+        console.log("error :",error);
+        let response = error_function({
+            statusCode : 400,
+            message : error.message ? error.message : "something went wrong"
+        })
+        res.status(response.statusCode).send(response.statusCode);   
+    }
+}

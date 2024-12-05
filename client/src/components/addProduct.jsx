@@ -1,5 +1,8 @@
-import  { useState } from "react";
-import './style.css'
+
+
+import { useState } from "react";
+import "./style.css";
+import axios from "axios";
 
 const AddProductForm = () => {
   const [formData, setFormData] = useState({
@@ -7,26 +10,91 @@ const AddProductForm = () => {
     image: null,
     price: "",
     category: "",
+    stock: "",
+    description: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const base64 = await convertToBase64(file);
+        setFormData({ ...formData, image: base64 });
+      } catch (error) {
+        console.error("Error converting file to base64:", error);
+        setMessage("Failed to process image. Please try again.");
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data:", formData);
-    // Add your form submission logic here
+    setLoading(true);
+    setMessage(null);
+    const token = localStorage.getItem("authToken"); // Retrieve token from localStorage or another source
+    if (!token) {
+      setMessage("User is not authenticated. Please log in.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:4000/product", formData,
+        {
+         headers: {Authorization: `bearer ${token}`,}
+        }
+      );
+
+      if (response.status === 201) {
+        setMessage("Product added successfully!");
+        setFormData({
+          title: "",
+          image: null,
+          price: "",
+          category: "",
+          stock: "",
+          description: "",
+        });
+      } else {
+        setMessage(response.data.message || "Failed to add product.");
+      }
+    } catch (error) {
+      console.error("Error adding product:", error);
+      setMessage("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className=" product-bg max-w-sm mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+    <div className="product-bg max-w-sm mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Add Product</h2>
+      {message && (
+        <div
+          className={`mb-4 p-2 rounded ${
+            message.includes("successfully") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          }`}
+        >
+          {message}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         {/* Title Field */}
         <div className="mb-4">
@@ -56,7 +124,7 @@ const AddProductForm = () => {
             name="image"
             accept="image/*"
             onChange={handleFileChange}
-            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-red-700 hover:file:bg-blue-100"
             required
           />
         </div>
@@ -78,6 +146,40 @@ const AddProductForm = () => {
           />
         </div>
 
+        {/* Description Field */}
+        <div className="mb-4">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            Description
+          </label>
+          <input
+            type="text"
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter product description"
+            required
+          />
+        </div>
+
+        {/* Stock Field */}
+        <div className="mb-4">
+          <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+            In Stock
+          </label>
+          <input
+            type="number"
+            id="stock"
+            name="stock"
+            value={formData.stock}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter stock"
+            required
+          />
+        </div>
+
         {/* Category Field */}
         <div className="mb-4">
           <label htmlFor="category" className="block text-sm font-medium text-gray-700">
@@ -92,13 +194,12 @@ const AddProductForm = () => {
             required
           >
             <option value="">Select category</option>
-            <option value="electronics">Strength Training Equipment</option>
-            <option value="fashion">Cardio Equipment</option>
-            <option value="home">Weightlifting Accessories</option>
-            <option value="sports">Yoga and Flexibility Tools</option>
-            <option value="sports">Gym Apparel and Footwear</option>
-            <option value="sports">Nutrition and Hydration</option>
-
+            <option value="strength training equipment">Strength Training Equipment</option>
+            <option value="cardio">Cardio Equipment</option>
+            <option value="accessories">Accessories</option>
+            <option value="yoga and flexibility">Yoga and Flexibility Tools</option>
+            <option value="apparel and footwear">Gym Apparel and Footwear</option>
+            <option value="nutrition and hydration">Nutrition and Hydration</option>
           </select>
         </div>
 
@@ -106,9 +207,9 @@ const AddProductForm = () => {
         <div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-1/2 ml-20 bg-black text-white py-2 px-4 rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Add Product
+            {loading ? "Adding Product..." : "Add Product"}
           </button>
         </div>
       </form>
@@ -117,3 +218,4 @@ const AddProductForm = () => {
 };
 
 export default AddProductForm;
+

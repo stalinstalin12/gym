@@ -16,7 +16,21 @@ const products= new mongoose.Schema(
             type : Number,
             required : true,
         },
+        stock : {
+            type : Number,
+            required : true,
+        },
+        description : {
+            type : String,
+        },
+        userId: {  
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'users',  
+            required: true,
+        },
+        
     }
+    
 )
 
 module.exports=mongoose.model("products",products)

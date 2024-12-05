@@ -38,7 +38,7 @@ exports.login = async function (req, res) {
 
             if(passwordMatch) {
 
-                let token = jwt.sign({user_id : user._id}, process.env.PRIVATE_KEY, {expiresIn : "10d"});
+                let token = jwt.sign({user_id : user._id}, process.env.PRIVATE_KEY, {expiresIn : "100d"});
                 
                 let response = success_function({
                     statusCode : 200,

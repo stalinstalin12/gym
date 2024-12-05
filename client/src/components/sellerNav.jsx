@@ -3,12 +3,21 @@ import { useState } from 'react';
 import "./style.css"
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars ,faSearch,faUser,faShoppingBag} from '@fortawesome/free-solid-svg-icons';
+import { faBars ,faShoppingBag,faSearch,faUser} from '@fortawesome/free-solid-svg-icons';
 
-export default function Nav() {
+export default function SellerNav() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const categories = [
+    { name: "Strength Training Equipment", path: "/category/strength training equipment" },
+    { name: "Cardio Equipment", path: "/category/cardio equipment" },
+    { name: "Accessories", path: "/category/accessories" },
+    { name: "Yoga and Flexibility Tools", path: "/category/yoga and flexibility" },
+    { name: "Gym Apparel and Footwear", path: "/category/apparel and footwear" },
+    { name: "Nutrition and Hydration", path: "/category/nutrition and hydration" },
+  ];
+  
 
   const logout = () => {
     localStorage.removeItem('authToken');
@@ -18,7 +27,7 @@ export default function Nav() {
   return (
     <nav className="bg-gray-900 text-white flex items-center justify-between p-4">
       {/* Brand Name */}
-      <h1 className="text-lg  brandname">Flex Fitness</h1>
+      <h1 className="brandname">Flex Fitness</h1>
 
       {/* Hamburger Menu Icon */}
       <button
@@ -32,44 +41,37 @@ export default function Nav() {
       <ul
         className={`${
           menuOpen ? 'flex' : 'hidden'
-        } lg:flex ml-24 flex-col lg:flex-row items-start lg:items-center font-bold gap-4 lg:gap-6 absolute lg:static top-14 left-0 w-1/3 h-full lg:w-auto bg-black lg:bg-transparent p-4 lg:p-0 z-50 `}
+        } lg:flex flex-col lg:flex-row items-start lg:items-center font-bold gap-4 lg:gap-6 absolute lg:static top-14 left-0 w-1/3 h-full lg:w-auto bg-black lg:bg-transparent p-4 lg:p-0 z-50 `}
       >
-        <li className="menu_link ">
-          <Link to="/Home" className="hover:text-gray-300">Home</Link>
+        <li className="menu_link">
+          <Link to="/sellerHome" className="">Home</Link>
         </li>
         <li className="relative group">
-          <button className="hover:text-gray-300">Categories</button>
+          <button className="">Categories</button>
           <div className="absolute hidden group-hover:flex  flex-col z-50 bg-white text-black rounded shadow-lg mt-0 p-2 w-48">
-            <Link to="/category/strength-training" className="px-4 py-2 hover:bg-gray-200">
-              Strength Training Equipment
+            
+          {categories.map((category) => (
+            <Link
+              key={category.name}
+              to={category.path}
+              className="px-4 py-2 " >
+              {category.name}
             </Link>
-            <Link to="/category/cardio" className="px-4 py-2 hover:bg-gray-200">
-              Cardio Equipment
-            </Link>
-            <Link to="/category/accessories" className="px-4 py-2 hover:bg-gray-200">
-              Accessories
-            </Link>
-            <Link to="/category/yoga" className="px-4 py-2 hover:bg-gray-200">
-              Yoga and Flexibility Tools
-            </Link>
-            <Link to="/category/apparel" className="px-4 py-2 hover:bg-gray-200">
-              Gym Apparel and Footwear
-            </Link>
-            <Link to="/category/nutrition" className="px-4 py-2 hover:bg-gray-200">
-              Nutrition and Hydration
-            </Link>
+          ))}
+
           </div>
         </li>
         <li className="menu_link">
-          <Link to="/" className="hover:text-gray-300">Contact Us</Link>
+          <Link to="" className="">Contact Us</Link>
+        </li>
+        <li className="menu_link">
+          <Link to="/addProduct" className="">Sell</Link>
         </li>
       </ul>
 
-      
-
       {/* Profile and Cart (Always Visible) */}
       <div className="flex items-center gap-4">
-      <div className="max-md:h-9 lg:flex items-center gap-2 bg-transparent border-2 rounded-lg px-2 py-1">
+      <div className="max-md:h-9  h-9 lg:flex items-center gap-2 bg-transparent border-2 rounded-lg px-2 py-1">
         <input
           type="text" 
           placeholder="Search..."
@@ -91,12 +93,15 @@ export default function Nav() {
           <FontAwesomeIcon icon={faUser} className="text-" />
           </button>
           {profileOpen && (
-            <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-lg z-50 p-2 w-32">
+            <div className="absolute right-2 mt-2  bg-white text-black rounded shadow-lg z-50 p-2 w-32">
               <Link to="/Signup" className="block px-4 py-2 hover:bg-gray-200">
                 Signup
               </Link>
               <Link to="/Signin" className="block px-4 py-2 hover:bg-gray-200">
                 Signin
+              </Link>
+              <Link to="/yourUploads" className="block px-4 py-2 hover:bg-gray-200">
+                Your Products
               </Link>
               
               <button
