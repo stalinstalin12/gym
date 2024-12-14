@@ -35,13 +35,13 @@ export default function YourUploads(){
           try{
             const response=await axios.get(`${baseUrl}/products`,{
               headers: {
-                Authorization: `Bearer ${token}`, 
+                Authorization: `bearer ${token}`, 
               },
             });
             console.log(response.data);
             
            const allProducts=response.data.data;
-           const userOwnedProducts=allProducts.filter((product)=>product.userId===userId)
+           const userOwnedProducts=allProducts.filter((product)=>product.userId._id===userId)
 
             setUserProducts(userOwnedProducts);
             setProducts(allProducts);
@@ -81,8 +81,16 @@ export default function YourUploads(){
           {Array.isArray(userProducts) &&userProducts.map((product) => (
             
             <div key={product._id} className=" bg-white shadow-md rounded-lg overflow-hidden" >
-              <img src={`${baseUrl}/${product.image}`} alt={product.title} className="hover:cursor-pointer w-full h-48 object-cover"onClick={()=>navigate(`/product/${product._id}`)} />
-              <div className="p-4 ">
+<img
+                   src={
+                      product.product_images && product.product_images.length > 0
+                        ? `${baseUrl}/${product.product_images[1]}`
+                        : './public/images/default-image.png' // Fallback to a default image
+                    }
+                    alt={product.title}
+                    className="w-full h-40 object-contain hover:cursor-pointer"
+                    onClick={() => navigate(`/product/${product._id}`)}
+                  />               <div className="p-4 ">
                 <h4 className="text-lg font-bold capitalize ">{product.title}</h4>
                 <p className="text-gray-900 font-semibold mt-2">₹ {product.price}</p>
                 <h4 className="text-md font-semibold text-gray-700 mt-2 line-clamp-1">{product.description}</h4>

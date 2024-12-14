@@ -14,11 +14,17 @@ const users = new mongoose.Schema({
         type : String,
         required : true,
     },
+    address:{
+        type : String,
+    },
     user_type : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "user_types"
-    }
-    
-});
+    }    
+},
+{
+    timestamps: true, // Automatically add `createdAt` and `updatedAt` fields
+}
+);
 
 module.exports = mongoose.model("users", users);

@@ -1,90 +1,71 @@
-import { useState, useEffect } from "react";
 
-const images = [
-  {src:"images/gymbg.jpg",
-    text:""
+import { useNavigate } from 'react-router-dom';
+
+const categories = [
+  {
+    id: 1,
+    name: 'Supplements',
+    image: 'images/supplement.jpg', // Replace with actual image URL
+    route: 'nutrition and hydration',
   },
-  {src:"images/gym1.jpg",
-    text:""
+  {
+    id: 2,
+    name: 'Strength',
+    image: 'images/gymbg2.jpg', // Replace with actual image URL
+    route: 'strength training equipment',
   },
-  {src:"images/gymbg2.webp",
-    text:""
+  {
+    id: 3,
+    name: 'Football',
+    image: 'images/gymbg.jpg', // Replace with actual image URL
+    route: '/category/football',
   },
-  
-  
+  {
+    id: 4,
+    name: 'Tennis',
+    image: 'images/gym1.jpg', // Replace with actual image URL
+    route: '/category/tennis',
+  },
+  {
+    id: 5,
+    name: 'Cycling',
+    image: 'images/gym5.jpg', // Replace with actual image URL
+    route: '/category/cycling',
+  },
+  {
+    id: 6,
+    name: 'Swimming',
+    image: 'images/gymbg2.webp', // Replace with actual image URL
+    route: '/category/swimming',
+  },
 ];
 
-export default function Carousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
-  };
+const Carousel = () => {
+  const navigate = useNavigate();
 
   return (
-    <div className=" container mx-auto relative w-full h-[60vh] sm:h-[70vh] md:h-[70vh] lg:h-[78vh] overflow-hidden bg-black ">
-      {/* Carousel Images */}
-      <div
-        className="flex transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-      >
-        {images.map((image, index) => (
-          <div key={index} className="flex-shrink-0 w-full h-full">
-            <img
-              src={image.src}
-              alt={`Slide ${index + 1}`}
-              className="w-full h-full object-contain"/>
-              <div className="font-bold absolute top-1/4 left-1/2  bg-opacity-60 text-white font-mono text-2xl">
-                <h1>{image.text}</h1>
+    <div className="container mx-auto my-8 px-4">
+      <h3 className="text-2xl font-bold text-gray-800 mb-4">Your Favorite Sports</h3>
+      <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+        {categories.map((category) => (
+          <div
+            key={category.id}
+            className="min-w-[150px] flex-shrink-0 text-center cursor-pointer"
+            onClick={() => navigate(`/category/${category.route}`)}
+          >
+            <div className="w-70 h-80 mx-auto rounded-lg overflow-hidden shadow-lg">
+              <img
+                src={category.image}
+                alt={category.name}
+                className="w-full h-full object-cover hover:scale-110 transition-transform duration-200"
+              />
             </div>
+            <p className="mt-2 text-lg font-semibold text-gray-700">{category.name}</p>
           </div>
-          
-        ))}
-        
-      </div>
-
-      {/* Navigation Buttons */}
-      <button
-        onClick={prevSlide}
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-800"
-      >
-        ❮
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-gray-800"
-      >
-        ❯
-      </button>
-
-      {/* Indicators */}
-      <div className="absolute bottom-4 flex justify-center items-center w-full">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`mx-1 w-3 h-3 rounded-full ${
-              currentIndex === index
-                ? "bg-gray-800 sm:w-4 sm:h-4"
-                : "bg-gray-400 sm:w-3 sm:h-3"
-            }`}
-          ></button>
         ))}
       </div>
     </div>
   );
-}
+};
+
+export default Carousel;

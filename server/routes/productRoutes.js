@@ -14,8 +14,8 @@ function setaccessControl(access_types){
 router.post('/product',setaccessControl('*'),productController.addProduct);
 router.get('/products',setaccessControl('*'),productController.viewProducts);
 router.get('/product/:id',setaccessControl('*'),productController.viewSingleProduct);
-router.get('/products/user',productController.viewProductsByUser);
-// Add a route to fetch products by category
-router.get('/products/category/:category', setaccessControl('*'), productController.viewProductsByCategory);
+router.get('/products/user/:id',productController.viewProductsByUser);
+router.get('/products/seller/:userId', productController.getProductsByUser);
+router.get('/products/category/:category', productController.viewProductsByCategory);
 
 module.exports=router;

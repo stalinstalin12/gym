@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import "./style.css"
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars ,faShoppingBag,faSearch,faUser} from '@fortawesome/free-solid-svg-icons';
+import { faBars,faHeart ,faShoppingBag,faSearch,faUser} from '@fortawesome/free-solid-svg-icons';
 
-export default function SellerNav() {
+export default function SellerNav({onSearch}) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchQuery,setSearchQuery]=useState('')
   const categories = [
     { name: "Strength Training Equipment", path: "/category/strength training equipment" },
     { name: "Cardio Equipment", path: "/category/cardio equipment" },
@@ -22,6 +24,13 @@ export default function SellerNav() {
   const logout = () => {
     localStorage.removeItem('authToken');
     navigate('/Signin');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(searchQuery.trim()); // Pass search query to parent
+    }
   };
 
   return (
@@ -62,7 +71,7 @@ export default function SellerNav() {
           </div>
         </li>
         <li className="menu_link">
-          <Link to="" className="">Contact Us</Link>
+        <Link to="/contact" className="">Contact Us</Link>
         </li>
         <li className="menu_link">
           <Link to="/addProduct" className="">Sell</Link>
@@ -72,9 +81,12 @@ export default function SellerNav() {
       {/* Profile and Cart (Always Visible) */}
       <div className="flex items-center gap-4">
       <div className="max-md:h-9  h-9 lg:flex items-center gap-2 bg-transparent border-2 rounded-lg px-2 py-1">
+        <form onSubmit={handleSearch}>
         <input
           type="text" 
+          value={searchQuery}
           placeholder="Search..."
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="max-md:w-6  bg-transparent outline-none text-white placeholder-gray-400 px-2 py-1"
         />
         <button
@@ -83,6 +95,7 @@ export default function SellerNav() {
         >
           <FontAwesomeIcon icon={faSearch} className="text-" />
         </button>
+        </form>
       </div>
         {/* Profile Dropdown */}
         <div className="relative">
@@ -94,6 +107,12 @@ export default function SellerNav() {
           </button>
           {profileOpen && (
             <div className="absolute right-2 mt-2  bg-white text-black rounded shadow-lg z-50 p-2 w-32">
+              <Link to="/profile" className="block px-4 py-2 hover:bg-gray-200">
+                Your Profile
+              </Link>
+              <Link to="/myOrders" className="block px-4 py-2 hover:bg-gray-200">
+                My Orders
+              </Link>
               <Link to="/Signup" className="block px-4 py-2 hover:bg-gray-200">
                 Signup
               </Link>
@@ -118,7 +137,15 @@ export default function SellerNav() {
         <Link to="/Cart">
         <FontAwesomeIcon icon={faShoppingBag} className="text-" />
         </Link>
+        <Link to="/wishlist">
+        <FontAwesomeIcon icon={faHeart} className="" />
+        </Link>
       </div>
     </nav>
   );
 }
+
+
+SellerNav.propTypes = {
+  onSearch: PropTypes.func.isRequired, // Make onSearch a required function
+};

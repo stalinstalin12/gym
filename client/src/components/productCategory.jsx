@@ -8,6 +8,7 @@ export default function ProductCategoryPage() {
   const { category } = useParams(); // Get category from URL
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
+  const baseUrl = 'http://localhost:4000';
 
   useEffect(() => {
     async function fetchCategoryProducts() {
@@ -25,9 +26,9 @@ export default function ProductCategoryPage() {
   if (error) return <p className="text-red-500 text-center">{error}</p>;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className=" px-9 py-4 bg-white container-fluid">
       <h1 className="text-2xl font-bold mb-6 text-center">
-        Products in <span className="capitalize">{category.replace("-", " ")}</span>
+        <span className="capitalize">{category.replace("-", " ")}</span>
       </h1>
 
       {products.length > 0 ? (
@@ -38,12 +39,17 @@ export default function ProductCategoryPage() {
               className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
             >
               <img
-                src={`http://localhost:4000/${product.image}`}
-                alt={product.title}
-                className="h-48 w-full object-cover "
-              />
+                   src={
+                      product.product_images && product.product_images.length > 0
+                        ? `${baseUrl}/${product.product_images[1]}`
+                        : './public/images/default-image.png' // Fallback to a default image
+                    }
+                    alt={product.title}
+                    className="w-full h-40 object-contain hover:cursor-pointer"
+                    
+                  /> 
               <div className="p-4">
-                <h3 className="text-lg font-bold mb-2">{product.title}</h3>
+                <h3 className="text-lg font-bold mb-2 line-clamp-1">{product.title}</h3>
                 
                 <h4 className="text-md font-thin text-gray-600 mb-2 line-clamp-1">{product.description}</h4>
                 

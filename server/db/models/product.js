@@ -1,8 +1,8 @@
 const mongoose=require('mongoose');
 const products= new mongoose.Schema(
     {
-        image : {
-            type : String
+        product_images : {
+            type : [String]
         },
         title : {
             type : String,
@@ -29,8 +29,11 @@ const products= new mongoose.Schema(
             required: true,
         },
         
+    },
+    {
+        timestamps: true, // Automatically add `createdAt` and `updatedAt` fields
     }
     
-)
+);
 
 module.exports=mongoose.model("products",products)

@@ -128,3 +128,46 @@ exports.deleteCart = [authenticate,async  (req, res)=> {
     res.status(response.statusCode).send(response);
   }
 }];
+
+// Update item quantity in the cart
+exports.updateCartQuantity = [
+  authenticate,
+  async (req, res) => {
+    try {
+      const userId = req.user.id; // Extract user ID from token
+      const { productId, quantity } = req.body; // Extract productId and new quantity from request body
+
+      if (!productId || quantity < 1) {
+        return res
+          .status(400)
+          .json({ message: "Invalid product ID or quantity must be at least 1." });
+      }
+
+      // Find the user's cart and update the quantity
+      const cart = await Cart.findOne({ userId });
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found." });
+      }
+
+      const item = cart.items.find(
+        (item) => item.productId.toString() === productId
+      );
+
+      if (!item) {
+        return res.status(404).json({ message: "Product not found in cart." });
+      }
+
+      // Update the quantity
+      item.quantity = quantity;
+      await cart.save();
+
+      return res.status(200).json({
+        message: "Quantity updated successfully.",
+        cart,
+      });
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      return res.status(500).json({ message: "Server error." });
+    }
+  },
+];
