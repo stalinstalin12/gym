@@ -11,6 +11,7 @@ import { addToWishlist, removeFromWishlist } from './wishlistUtil';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartPlus, faHeart } from '@fortawesome/free-solid-svg-icons';
 import Carousel from './carousel';
+import Carousel2 from './carousel2';
 
 export default function Home() {
   const productSectionRef = useRef(null); // Reference for the product section
@@ -20,7 +21,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cartItems, setCartItems] = useState([]);
-  console.log(cartItems)
   const [wishlistItems, setWishlistItems] = useState([]);
   const baseUrl = 'http://localhost:4000';
   const navigate = useNavigate();
@@ -62,6 +62,9 @@ export default function Home() {
       }
     };
 
+    
+    
+
     fetchProducts();
     fetchWishlist();
   }, [token]);
@@ -83,27 +86,32 @@ export default function Home() {
 
   return (
     <>
-      <Nav onSearch={setSearchQuery}/>
+      <Nav  onSearch={setSearchQuery}/>
       <div className="container-fluid w-full bg-white">
         <ToastContainer />
-        <div className="bg-yellow-100 text-center py-4">
+        <div className=" relative container">
+          <Carousel2 />
+          <div className="absolute bottom-0 left-1/3 right-1/3 text-center py-4">
         <button
           onClick={handleScrollToProducts}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-black  text-white font-bold py-2 px-4 rounded-2xl"
         >
           Explore Products
         </button>
       </div>
+        </div>
+        
+        
         
     <Carousel />
         {/* New Arrivals Section */}
-        <div className="container mx-auto my-8 px-4">
+        <div className="container mx-auto my-8 p-4">
   <h3 className="text-2xl font-bold text-gray-800 mb-4">New Arrivals</h3>
   {loading && <p>Loading new arrivals...</p>}
   {error && <p className="text-red-500">{error}</p>}
   <div className="flex gap-6 overflow-x-auto scrollbar-hide ">
     {newArrivals.map((product) => (
-      <div key={product._id} className="min-w-[200px] w-[300px] shadow-lg rounded-lg overflow-hidden flex-shrink-0">
+      <div key={product._id} className="bg-white  min-w-[200px] w-[300px] shadow-md hover:shadow-lg transition-shadow border border-gray-200 rounded-lg overflow-hidden flex-shrink-0">
         <img
           src={
             product.product_images && product.product_images.length > 0
@@ -183,59 +191,65 @@ export default function Home() {
           {error && <p className="text-red-500">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product._id} className="shadow-lg rounded-lg overflow-hidden">
-                <img
-                  src={
-                    product.product_images && product.product_images.length > 0
-                      ? `${baseUrl}/${product.product_images[0]}`
-                      : './public/images/default-image.png'
-                  }
-                  alt={product.title}
-                  className="w-full h-40 object-contain hover:cursor-pointer"
-                  onClick={() => navigate(`/product/${product._id}`)}
-                />
-                <div className="p-4">
-                  <h4 className="text-lg text-gray-900 font-bold capitalize line-clamp-1">{product.title}</h4>
-                  <p className="text-gray-900 mt-2 font-semibold">₹ {product.price}</p>
-                  <h4 className="text-md  text-gray-600 mt-2 line-clamp-1">{product.description}</h4>
-                  <p className="text-gray-500 mt-2 capitalize">{product.category}</p>
-                  <div className="text-black flex flex-col gap-3 mt-2">
-                    {product.stock === 0 || product.stock == null ? (
-                      <p className="text-red-600 font-semibold">Out Of Stock</p>
-                    ) : (
-                      <p className="text-green-600 font-semibold">In Stock</p>
-                    )}
-                    <div className="flex justify-between mt-2">
-                      <button
-                        onClick={() => {
-                          if (product.stock > 0) {
-                            addToCart(product._id, token, setCartItems);
-                          }
-                        }}
-                        className="p-2 bg-black hover:bg-gray-600 rounded-full w-9 h-9"
-                      >
-                        <FontAwesomeIcon icon={faCartPlus} className="text-white text-lg" />
-                      </button>
-                      <button
-  onClick={() => {
-    if (!isInWishlist(product._id)) {
-      addToWishlist(product._id, token, setWishlistItems);
-    }
-  }}
-  className={`p-2 rounded-full w-9 h-9 ${
-    isInWishlist(product._id) ? 'bg-red-600' : 'bg-black'
-  }`}
->
-  <FontAwesomeIcon
-    icon={faHeart}
-    className={`text-lg ${isInWishlist(product._id) ? 'text-white' : 'text-white'}`}
-  />
-</button>
-
-                    </div>
+              <div key={product._id} className="bg-white min-w-[200px] w-[300px] shadow-md hover:shadow-lg transition-shadow border border-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+              <img
+                src={
+                  product.product_images && product.product_images.length > 0
+                    ? `${baseUrl}/${product.product_images[0]}`
+                    : './public/images/default-image.png'
+                }
+                alt={product.title}
+                className="w-full h-40 object-contain hover:cursor-pointer"
+                onClick={() => navigate(`/product/${product._id}`)}
+              />
+              <div className="p-4">
+                <h4 className="text-lg text-gray-900 font-bold capitalize line-clamp-1">{product.title}</h4>
+                <p className="text-gray-900 mt-2 font-semibold">₹ {product.price}</p>
+                <h4 className="text-md  text-gray-600 mt-2 line-clamp-1">{product.description}</h4>
+                 <p className="text-gray-500 mt-2 capitalize">{product.category}</p>
+                <div className="text-black flex flex-col gap-3 mt-2">
+                  {product.stock === 0 || product.stock == null ? (
+                    <p className="text-red-600 font-semibold">Out Of Stock</p>
+                  ) : (
+                    <p className="text-green-600 font-semibold">In Stock</p>
+                  )}
+                  <div className="flex justify-between mt-2">
+                  <button
+                      onClick={() => {
+                        if (product.stock > 0 ) {
+                          addToCart(product._id, token, setCartItems);
+                          console.log(cartItems);
+                          
+                        }
+                      }}
+                      className={`p-2 h-9 w-9 rounded-full ${
+                        product.stock > 0 
+                          ? 'bg-black hover:bg-gray-700 active:bg-red-800'
+                          : 'bg-gray-400 cursor-not-allowed'
+                      }`}
+                      disabled={product.stock === 0 || product.stock == null}
+                    >
+                      <FontAwesomeIcon icon={faCartPlus} className="text-white text-lg" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        isInWishlist(product._id)
+                          ? removeFromWishlist(product._id, token, setWishlistItems)
+                          : addToWishlist(product._id, token, setWishlistItems)
+                      }
+                      className={`p-2 rounded-full w-9 h-9 ${
+                        isInWishlist(product._id) ? 'bg-red-600' : 'bg-black'
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faHeart}
+                        className={`text-lg ${isInWishlist(product._id) ? 'text-white' : 'text-white'}`}
+                      />
+                    </button>
                   </div>
                 </div>
               </div>
+            </div>
             ))}
             {filteredProducts.length === 0 && (
             <p className="col-span-full text-gray-500">No products found</p>

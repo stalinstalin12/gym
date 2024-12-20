@@ -24,6 +24,7 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoute = require('./routes/cartRoute');
 const wishlistRoute = require('./routes/wishlistRoute');
 const orderRoute = require('./routes/orderRoute');
+const reviewRoute = require('./routes/reviewRoute');
 
 
 // Test Route
@@ -45,6 +46,7 @@ app.use(productRoutes);
 app.use(cartRoute);
 app.use(wishlistRoute);
 app.use(orderRoute)
+app.use(reviewRoute)
 
 // Error handling for invalid routes
 app.use((req, res) => {

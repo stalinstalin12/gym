@@ -44,7 +44,7 @@ const AllUsersOrdersPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Admin: View All Users Orders</h1>
+      <h1 className="text-2xl font-bold mb-6">View All  Orders</h1>
       {orders.length > 0 ? (
         orders.map((order) => (
           <div key={order._id} className="border rounded-lg p-4 mb-6 shadow-md">

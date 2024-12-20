@@ -36,32 +36,48 @@ const AllProductsPage = () => {
     fetchProducts();
   }, []);
 
+  const handleBlockProduct = async (productId) => {
+    try {
+      await axios.put(`${baseUrl}/blockProduct/${productId}`, {}, {
+        headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
+      });
+      setProducts(prevProducts => prevProducts.filter(product => product._id !== productId));
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Failed to block product.");
+    }
+  };
+
   console.log('Current products state:', products);
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    
-    <div className="container-fluid mx-auto ">
-        <AdminNav />
+    <div className="container-fluid mx-auto">
+      <AdminNav />
       <h1 className="text-2xl font-bold mb-6 p-6">All Products</h1>
       <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.length > 0 ? (
           products.map((product) => (
             <div key={product._id} className="border rounded-lg p-4 shadow-md">
-                <Link title="Click to view product details" to={`/product/${product._id}`}>
-              <img
-                src={`${baseUrl}/${product.product_images[0]}`}
-                alt={product.title}
-                className="w-full h-48 object-cover mb-4 rounded"
-              />
-              <h2 className="text-lg font-semibold line-clamp-1">{product.title}</h2>
-              <p className="text-gray-600 line-clamp-1">{product.description}</p>
-              <p className="text-gray-800 font-bold">₹ {product.price}</p>
-              <p className="text-gray-500 capitalize">Sold by: {product.userId?.name}</p> {/* Display the seller's name */}
-              <p className="text-gray-500">Uploaded on:{new Date(product.createdAt).toLocaleDateString()}</p>
+              <Link title="Click to view product details" to={`/product/${product._id}`}>
+                <img
+                  src={`${baseUrl}/${product.product_images[0]}`}
+                  alt={product.title}
+                  className="w-full h-48 object-cover mb-4 rounded"
+                />
+                <h2 className="text-lg font-semibold line-clamp-1">{product.title}</h2>
+                <p className="text-gray-600 line-clamp-1">{product.description}</p>
+                <p className="text-gray-800 font-bold">₹ {product.price}</p>
+                <p className="text-gray-500 capitalize">Sold by: {product.userId?.name}</p> {/* Display the seller's name */}
+                <p className="text-gray-500">Uploaded on: {new Date(product.createdAt).toLocaleDateString()}</p>
               </Link>
+              <button 
+                onClick={() => handleBlockProduct(product._id)}
+                className="mt-2 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-800"
+              >
+                Block
+              </button>
             </div>
           ))
         ) : (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faShoppingBasket, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function Cart() {
@@ -134,32 +134,49 @@ export default function Cart() {
   return (
     <div className="container-fluid h-screen bg-white mx-auto p-4 flex flex-col lg:flex-row lg:justify-between">
       <ToastContainer />
-      <div className="w-full lg:w-1/2">
-        <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+      <div className="w-full ">
+        
         {cartItems.length === 0 ? (
-          <div className="text-gray-500">Your cart is empty.</div>
+          <div className="flex flex-col  items-center justify-center  text-center mt-20">
+          <FontAwesomeIcon
+            icon={faShoppingBasket}
+            className="text-gray-900 text-6xl mb-6"
+          />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Cart is Empty</h2>
+          <p className="text-gray-600 mb-4">
+            Looks like you havent added anything to your cart yet.
+          </p>
+          <button
+            onClick={() => navigate("/Home")}
+            className="px-6 py-2 bg-black text-white font-semibold rounded-lg hover:bg-gray-800"
+          >
+            Shop Now
+          </button>
+        </div>
         ) : (
-          <div className="grid grid-rows-1 gap-4">
+          
+          <div className="grid grid-rows-1 gap-4 w-3/4">
+            <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
             {cartItems.map((item) => {
               const product = item.productId;
               return (
                 <div
                   key={product?._id || item._id}
-                  className="bg-white shadow flex justify-between rounded-lg p-4 border border-gray-200"
+                  className="bg-white shadow  flex justify-between rounded-lg p-4 border border-gray-200"
                 >
                   <div className="image-sec">
                     <img
                       onClick={() => product && navigate(`/product/${product._id}`)}
                       src={
                         product?.product_images?.length > 0
-                          ? `http://localhost:4000/${product.product_images[0]}`
+                          ? `http://localhost:4000/${product.product_images[2]}`
                           : "./public/images/default-image.png"
                       }
                       alt={product?.title || "Product Image"}
                       className="object-cover h-36"
                     />
                   </div>
-                  <div className="title">
+                  <div className="title ">
                     <h2 className="text-lg font-semibold capitalize mt-1">
                       {product?.title || "Product not available"}
                     </h2>

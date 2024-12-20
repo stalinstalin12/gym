@@ -1,9 +1,12 @@
 const users = require('../db/models/users');
-    const success_function = require('../utils/response-handler').success_function;
-    const error_function = require('../utils/response-handler').error_function;
+const success_function = require('../utils/response-handler').success_function;
+const error_function = require('../utils/response-handler').error_function;
 const bcrypt = require('bcryptjs');
 const user_type=require('../db/models/user_type')
 const fileUpload = require('../utils/file-upload').fileUpload;
+const UpgradeRequest = require('../db/models/upgradeReq');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 const jwt = require('jsonwebtoken');
 
@@ -261,6 +264,7 @@ exports.viewUserProfile = [authenticate,async function (req, res) {
     }
 }];
 
+//update user details
 exports.updateUser = [authenticate, async function (req, res) {
     try {
         // Get the logged-in user's ID from the request (added by authenticate middleware)
@@ -333,4 +337,71 @@ exports.updateUser = [authenticate, async function (req, res) {
 
         res.status(response.statusCode).send(response);
     }
+}];
+
+//upgrade seller request
+exports.requestUpgrade =[authenticate, async (req, res) => {
+    try { const userId = req.user.id;
+        const { companyName, license } = req.body;
+        const newRequest = new UpgradeRequest({ userId, companyName, license, status: 'pending' });
+        const savedRequest = await newRequest.save();
+        res.status(201).send({ message: 'Upgrade request submitted successfully', data: savedRequest });
+    } 
+    catch (error) {
+         res.status(500).send({ message: 'Something went wrong', error: error.message });
+    } 
+}];
+
+//aprove upgrade
+exports.approveUpgrade = [authenticate, async (req, res) => { 
+    try { 
+        const requestId = req.params.id; 
+        const upgradeRequest = await UpgradeRequest.findById(requestId).populate('userId'); 
+
+        if (!upgradeRequest) { 
+            return res.status(404).send({ message: 'Upgrade request not found' }); 
+        } 
+
+        const sellerTypeId =new  mongoose.Types.ObjectId('6738b70b20495c12314f4c4f');
+
+        const updatedUser = await users.findByIdAndUpdate(
+            upgradeRequest.userId._id, 
+            { user_type: sellerTypeId }, 
+            { new: true }
+        ); 
+        
+        if (!updatedUser) { 
+            return res.status(404).send({ message: 'User not found' }); 
+        } 
+
+        // Delete the upgrade request after approval
+        await UpgradeRequest.findByIdAndDelete(requestId); 
+
+        res.status(200).send({ 
+            message: 'User upgraded to seller and request deleted', 
+            data: updatedUser, 
+            upgradeDetails: {
+                companyName: upgradeRequest.companyName,
+                license: upgradeRequest.license
+            }
+        }); 
+    } catch (error) { 
+        res.status(500).send({ message: 'Something went wrong', error: error.message }); 
+    } 
+}];
+
+
+
+
+
+
+//view request upgrades
+exports.getAllUpgradeRequests =[authenticate, async (req, res) => { 
+    try { 
+        const requests = await UpgradeRequest.find().populate('userId', 'name email'); 
+        res.status(200).send({ message: 'Upgrade requests fetched successfully', data: requests });
+    } 
+    catch (error) 
+    { res.status(500).send({ message: 'Something went wrong', error: error.message }); 
+    } 
 }];

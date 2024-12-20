@@ -11,11 +11,13 @@ function setaccessControl(access_types){
     }
 }
 
-router.post('/product',setaccessControl('*'),productController.addProduct);
+router.post('/product',setaccessControl('3'),productController.addProduct);
 router.get('/products',setaccessControl('*'),productController.viewProducts);
+router.get('/blockedproducts',setaccessControl('*'),productController.viewBlockedProducts);
+
 router.get('/product/:id',setaccessControl('*'),productController.viewSingleProduct);
 router.get('/products/user/:id',productController.viewProductsByUser);
 router.get('/products/seller/:userId', productController.getProductsByUser);
 router.get('/products/category/:category', productController.viewProductsByCategory);
-
+router.put('/blockProduct/:id',setaccessControl('1') , productController.blockProduct);
 module.exports=router;

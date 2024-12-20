@@ -1,16 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import AdminNav from "./AdminNav"; // Import the AdminNav component
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 
 const baseUrl = 'http://localhost:4000';
 
 const AdminHome = () => {
+  const upgradeReqSection = useRef(null);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
+  const [upgradeRequests, setUpgradeRequests] = useState([]);
   const [todayOrderSum, setTodayOrderSum] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showUpgradeRequests, setShowUpgradeRequests] = useState(false); 
+  const[approveError,setApproveError]=useState('')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,18 +28,27 @@ const AdminHome = () => {
           headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
         });
         const userResponse = await axios.get(`${baseUrl}/users`, {
-            headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
-          });
+          headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
+        });
+        const upgradeRequestsResponse = await axios.get(`${baseUrl}/upgradeRequests`, {
+          headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
+        });
 
         setOrders(ordersResponse.data.data);
         setProducts(productsResponse.data.data);
         setUsers(userResponse.data.data);
-        const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0); 
-        const endOfDay = new Date(); endOfDay.setHours(23, 59, 59, 999); 
-        const todayOrders = ordersResponse.data.data.filter(order => { const orderDate = new Date(order.createdAt); 
-          return orderDate >= startOfDay && orderDate <= endOfDay; });
-           const totalSum = todayOrders.reduce((sum, order) => sum + order.total, 0); 
-           setTodayOrderSum(totalSum);
+        setUpgradeRequests(upgradeRequestsResponse.data.data);
+
+        const startOfDay = new Date(); 
+        startOfDay.setHours(0, 0, 0, 0); 
+        const endOfDay = new Date(); 
+        endOfDay.setHours(23, 59, 59, 999); 
+        const todayOrders = ordersResponse.data.data.filter(order => { 
+          const orderDate = new Date(order.createdAt); 
+          return orderDate >= startOfDay && orderDate <= endOfDay; 
+        });
+        const totalSum = todayOrders.reduce((sum, order) => sum + order.total, 0); 
+        setTodayOrderSum(totalSum);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || err.message || "Something went wrong");
@@ -43,6 +58,28 @@ const AdminHome = () => {
 
     fetchData();
   }, []);
+
+  const handleShowUpgradeRequests = () => {
+    setShowUpgradeRequests(!showUpgradeRequests);
+  };
+
+  // const handleScrollToUpgrade = () => {
+  //   if (upgradeReqSection.current) {
+  //     upgradeReqSection.current.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // };
+  const handleApproveRequest = async (requestId) => { 
+    try { 
+      await axios.put(`${baseUrl}/approveUpgrade/${requestId}`,
+         {}, { headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
+         }); 
+  setUpgradeRequests(prevRequests => prevRequests.filter(request => request._id !== requestId)); 
+  setApproveError(null); } 
+  catch (err) { 
+    setApproveError(err.response?.data?.message || err.message || "Something went wrong"); 
+    console.log(approveError)
+  } 
+};
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -63,17 +100,59 @@ const AdminHome = () => {
             <p className="text-2xl">{orders.length}</p>
           </div>
           <div className="bg-white p-4 shadow rounded-lg">
-            <h3 className="text-lg font-semibold">Total users</h3>
+            <h3 className="text-lg font-semibold">Total Users</h3>
             <p className="text-2xl">{users.length}</p>
           </div>
           <div className="bg-white p-4 shadow rounded-lg">
-             <h3 className="text-lg font-semibold">Todays Money</h3>
-              <p className="text-2xl">₹ {todayOrderSum}</p> 
-              <p className="text-green-500">Sum of orders placed today</p> 
-              </div>
-          
+            <h3 className="text-lg font-semibold">Upgrade Requests</h3>
+            <div className="flex gap-6 items-center">
+            <p className="text-2xl">{upgradeRequests.length}</p>
+            <button 
+              onClick={handleShowUpgradeRequests} 
+              
+              className="mt-2  text-white bg-green-600 py-1 px-3 rounded hover:bg-green-800">
+              <FontAwesomeIcon icon={faEye} />
+            </button></div>
+          </div>
+          <div className="bg-white p-4 shadow rounded-lg">
+            <h3 className="text-lg font-semibold">Money</h3>
+            <p className="text-2xl">₹ {todayOrderSum}</p> 
+            <p className="text-green-500">Total orders placed today</p> 
+          </div>
         </div>
 
+        {showUpgradeRequests && (
+          <div ref={upgradeReqSection} className="mt-8 bg-white p-6 shadow rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Upgrade Requests</h3>
+            <table className="w-full text-left">
+              <thead>
+                <tr>
+                  <th className="py-2">User Name</th>
+                  <th className="py-2">Email</th>
+                  <th className="py-2">Company Name</th>
+                  <th className="py-2">License</th>
+                  <th className="py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {upgradeRequests.map((request) => (
+                  <tr key={request._id}>
+                    <td className="py-2">{request.userId.name}</td>
+                    <td className="py-2">{request.userId.email}</td>
+                    <td className="py-2">{request.companyName}</td>
+                    <td className="py-2">{request.license}</td>
+                    <td className="py-2">{request.status}</td>
+                    <td className="py-2"> 
+                      <button onClick={() => handleApproveRequest(request._id)} 
+                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700" > Approve </button> 
+                      </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        
         {/* Sales Overview */}
         <div className="mt-8 bg-white p-6 shadow rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>

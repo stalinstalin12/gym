@@ -23,6 +23,9 @@ const products= new mongoose.Schema(
         description : {
             type : String,
         },
+        blocked: {
+             type: Boolean, default: false 
+        },
         userId: {  
             type: mongoose.Schema.Types.ObjectId,
             ref: 'users',  

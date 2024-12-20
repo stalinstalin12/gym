@@ -79,11 +79,47 @@ exports.addProduct = [authenticate, async (req, res) => {
 
 //view products
 
-exports.viewProducts=async function (req,res) {
+exports.viewProducts = async function (req, res) {
+    try {
+        let productData = await products.find({
+            $or: [{ blocked: false }, { blocked: null }, { blocked: { $exists: false } }]
+        }).populate('userId', 'name');
+
+        if (productData.length === 0) {
+            return res.status(404).send({ 
+                statusCode: 404, 
+                message: "No products found" 
+            });
+        }
+
+        console.log(productData);
+
+        let response = success_function({
+            statusCode: 200,
+            data: productData,
+            message: "Products fetched successfully",
+        });
+
+        res.status(response.statusCode).send(response);
+        return;
+    } catch (error) {
+        console.error("Error fetching products:", error);
+
+        let response = error_function({
+            statusCode: 400,
+            message: error.message || "Something went wrong",
+        });
+
+        res.status(response.statusCode).send(response);
+        return;
+    }
+};
+
+exports.viewBlockedProducts=async function (req,res) {
     try{
         
 
-        let productData=await products.find().populate('userId', 'name');
+        let productData=await products.find({ blocked: true }).populate('userId', 'name');
         console.log(productData);
 
 
@@ -214,7 +250,19 @@ exports.getProductsByUser = async (req, res) => {
     }
   };
 
-
+//block product
+exports.blockProduct = async (req, res) => { 
+    try { 
+        const productId = req.params.id; 
+        const updatedProduct = await products.findByIdAndUpdate(productId, { blocked: true }, { new: true }); 
+        if (!updatedProduct) { 
+            return res.status(404).send({ message: 'Product not found' }); 
+        } res.status(200).send({ message: 'Product blocked successfully', data: updatedProduct }); 
+    } 
+    catch (error) { 
+        res.status(500).send({ message: 'Something went wrong', error: error.message }); 
+    } 
+};
 
 
 

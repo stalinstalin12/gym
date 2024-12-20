@@ -12,13 +12,7 @@ export default function AdminNav() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const categories = [
-    { name: "Strength Training Equipment", path: "/category/strength training equipment" },
-    { name: "Cardio Equipment", path: "/category/cardio" },
-    { name: "Accessories", path: "/category/accessories" },
-    { name: "Yoga and Flexibility Tools", path: "/category/yoga and flexibility" },
-    { name: "Nutrition and Hydration", path: "/category/nutrition and hydration" },
-  ];
+  
 
   const logout = () => {
     localStorage.removeItem('authToken');
@@ -45,23 +39,9 @@ export default function AdminNav() {
         } lg:flex max:mt-3 flex-col lg:flex-row items-start lg:items-center font-bold gap-4 lg:gap-6 absolute lg:static top-14 left-0 w-1/3 h-full lg:w-auto bg-black lg:bg-transparent p-4 lg:p-0 z-50 `}
       >
         <li className="menu_link ">
-          <Link to="/adminHome" className="">Home</Link>
+          <Link to="/adminHome" className="">Dashboard</Link>
         </li>
-        <li className="relative group">
-          <button className="">Categories</button>
-          <div className="absolute hidden group-hover:flex  flex-col z-50 bg-white text-black rounded shadow-lg mt-0 p-2 w-48">
-           
-          {categories.map((category) => (
-            <Link
-              key={category.name}
-              to={category.path}
-              className="px-4 py-2 " >
-              {category.name}
-            </Link>
-          ))}
-            
-          </div>
-        </li>
+        
         <li className="menu_link">
         <Link to="/AllProducts" className="">Products</Link>
         </li>

@@ -10,8 +10,13 @@ const Profile = () => {
     address: '',
     password: '',
   });
+  const [upgradeData, setUpgradeData] = useState({
+    companyName: '',
+    license: '',
+  });
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [upgradeSuccessMessage, setUpgradeSuccessMessage] = useState(null);
 
   const token = localStorage.getItem('authToken'); // Assuming the token is stored in localStorage
 
@@ -46,6 +51,11 @@ const Profile = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleUpgradeInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpgradeData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
   const handleSave = () => {
     if (token) {
       axios
@@ -63,6 +73,29 @@ const Profile = () => {
           setError(null);
           setUserData(response.data.data); // Update userData with new data
           setEditMode(false); // Exit edit mode
+        })
+        .catch((err) => {
+          setError(err.response ? err.response.data.message : 'Something went wrong');
+        });
+    }
+  };
+
+  const handleUpgradeRequest = () => {
+    if (token) {
+      axios
+        .post(
+          'http://localhost:4000/requestUpgrade',
+          { ...upgradeData },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          setUpgradeSuccessMessage('Upgrade request submitted successfully');
+          setError(null);
+          console.log(response);
         })
         .catch((err) => {
           setError(err.response ? err.response.data.message : 'Something went wrong');
@@ -98,6 +131,10 @@ const Profile = () => {
 
       {successMessage && (
         <div className="bg-green-500 text-white p-2 rounded mb-4">{successMessage}</div>
+      )}
+
+      {upgradeSuccessMessage && (
+        <div className="bg-green-500 text-white p-2 rounded mb-4">{upgradeSuccessMessage}</div>
       )}
 
       <div className="flex flex-col space-y-4">
@@ -152,6 +189,42 @@ const Profile = () => {
             {userData.user_type === '6738b70b20495c12314f4c4f' ? 'Seller' : 'Customer'}
           </div>
         </div>
+
+        {userData.user_type !== '6738b70b20495c12314f4c4f' && (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Request Upgrade to Seller</h2>
+            <div className="flex flex-col space-y-4">
+              <div className="flex justify-between gap-6">
+                <label className="block font-medium text-gray-600">Company Name :</label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={upgradeData.companyName}
+                  onChange={handleUpgradeInputChange}
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              <div className="flex justify-between gap-6">
+                <label className="block font-medium text-gray-600">License :</label>
+                <input
+                  type="text"
+                  name="license"
+                  value={upgradeData.license}
+                  onChange={handleUpgradeInputChange}
+                  className="border p-2 rounded"
+                />
+              </div>
+
+              <button
+                onClick={handleUpgradeRequest}
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+              >
+                Request Upgrade
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {editMode ? (

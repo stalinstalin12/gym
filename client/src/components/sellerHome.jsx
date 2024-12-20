@@ -1,6 +1,6 @@
 import './style.css';
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import {useRef, useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +10,10 @@ import { addToCart } from './cartUtil';
 import { faCartPlus, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { addToWishlist, removeFromWishlist } from './wishlistUtil'; // Import wishlist utils
+import Carousel2 from './carousel2';
 
 export default function SellerHome() {
+  const productSectionRef = useRef(null);
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -86,11 +88,28 @@ export default function SellerHome() {
     ? searchProducts(filteredProducts) // If searching, filter from filteredProducts
     : filteredProducts; // Otherwise, show the unfiltered list
 
+    // Scroll handler
+  const handleScrollToProducts = () => {
+    if (productSectionRef.current) {
+      productSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   return (
     <>
       <SellerNav onSearch={setSearchQuery} />
       <div className="container-fluid w-full bg-white">
         <ToastContainer />
+        <div className=" relative container">
+                  <Carousel2 />
+                  <div className="absolute bottom-0 left-1/3 right-1/3 text-center py-4">
+                <button
+                  onClick={handleScrollToProducts}
+                  className="bg-black  text-white font-bold py-2 px-4 rounded"
+                >
+                  Explore Products
+                </button>
+              </div>
+                </div>
         <div className="bg-yellow-100 border-2 border-yellow-500 text-yellow-700 p-4 rounded-md shadow-md  mx-auto mt-2 container">
           <div className="flex justify-between items-center">
             <div>
@@ -103,7 +122,7 @@ export default function SellerHome() {
           </div>
         </div>
 
-        <div className="container mx-auto my-8 px-4">
+        <div ref={productSectionRef} className="container mx-auto my-8 px-4">
           <h3 className="text-2xl font-bold text-gray-800 mb-4">Our Products</h3>
           {loading && <p>Loading products...</p>}
           {error && <p className="text-red-500">{error}</p>}
@@ -122,7 +141,7 @@ export default function SellerHome() {
                   onClick={() => navigate(`/product/${product._id}`)}
                 />
                 <div className="p-4">
-                  <h4 className="text-lg font-bold capitalize">{product.title}</h4>
+                  <h4 className="text-lg font-bold capitalize line-clamp-1">{product.title}</h4>
                   <p className="text-gray-900 font-semibold mt-2">₹ {product.price}</p>
                   <h4 className="text-md font-semibold text-gray-700 mt-2 line-clamp-1">{product.description}</h4>
                   <p className="text-gray-500 mt-2 capitalize">{product.category}</p>

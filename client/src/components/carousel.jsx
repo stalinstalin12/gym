@@ -1,42 +1,38 @@
-
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const categories = [
   {
     id: 1,
-    name: 'Supplements',
-    image: 'images/supplement.jpg', // Replace with actual image URL
-    route: 'nutrition and hydration',
+    name: "SUPPLEMENTS",
+    image: "images/supplements.webp",
+    route: "nutrition and hydration",
   },
   {
     id: 2,
-    name: 'Strength',
-    image: 'images/gymbg2.jpg', // Replace with actual image URL
-    route: 'strength training equipment',
+    name: "STRENGTH",
+    image: "images/gym5.jpg",
+    route: "strength training equipment",
   },
   {
     id: 3,
-    name: 'Football',
-    image: 'images/gymbg.jpg', // Replace with actual image URL
-    route: '/category/football',
+    name: "YOGA",
+    image: "images/yoga.jpg",
+    route: "yoga and flexibility",
   },
   {
     id: 4,
-    name: 'Tennis',
-    image: 'images/gym1.jpg', // Replace with actual image URL
-    route: '/category/tennis',
+    name: "ACCESSORIES",
+    image: "images/gym1.jpg",
+    route: "accessories",
   },
   {
     id: 5,
-    name: 'Cycling',
-    image: 'images/gym5.jpg', // Replace with actual image URL
-    route: '/category/cycling',
-  },
-  {
-    id: 6,
-    name: 'Swimming',
-    image: 'images/gymbg2.webp', // Replace with actual image URL
-    route: '/category/swimming',
+    name: "FITNESS",
+    image: "images/gymbg2.webp",
+    route: "swimming",
   },
 ];
 
@@ -45,25 +41,29 @@ const Carousel = () => {
 
   return (
     <div className="container mx-auto my-8 px-4">
-      <h3 className="text-2xl font-bold text-gray-800 mb-4">Your Favorite Sports</h3>
-      <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+      {/* First Carousel */}
+      <div className="flex gap-6 overflow-x-auto scrollbar-hide mb-12">
         {categories.map((category) => (
           <div
             key={category.id}
-            className="min-w-[150px] flex-shrink-0 text-center cursor-pointer"
+            className="min-w-[150px] max-w-96 flex-shrink-0 text-center shadow-lg cursor-pointer"
             onClick={() => navigate(`/category/${category.route}`)}
           >
-            <div className="w-70 h-80 mx-auto rounded-lg overflow-hidden shadow-lg">
+            <div className="relative w-72 h-72 mx-auto rounded-lg overflow-hidden ">
               <img
                 src={category.image}
                 alt={category.name}
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-200"
               />
+              <p className="absolute bottom-0 bg-black/70 text-white w-full py-2 font-semibold">
+                {category.name}
+              </p>
             </div>
-            <p className="mt-2 text-lg font-semibold text-gray-700">{category.name}</p>
           </div>
         ))}
       </div>
+
+      
     </div>
   );
 };
