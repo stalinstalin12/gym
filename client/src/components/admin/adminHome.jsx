@@ -4,6 +4,8 @@ import AdminNav from "./AdminNav"; // Import the AdminNav component
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 
+
+
 const baseUrl = 'http://localhost:4000';
 
 const AdminHome = () => {
@@ -62,6 +64,9 @@ const AdminHome = () => {
   const handleShowUpgradeRequests = () => {
     setShowUpgradeRequests(!showUpgradeRequests);
   };
+
+ 
+  
 
   // const handleScrollToUpgrade = () => {
   //   if (upgradeReqSection.current) {
@@ -154,13 +159,20 @@ const AdminHome = () => {
         )}
         
         {/* Sales Overview */}
-        <div className="mt-8 bg-white p-6 shadow rounded-lg">
+        {/* <div className="mt-8 bg-white p-6 h-96  shadow rounded-lg">
           <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>
-          {/* Chart Placeholder */}
-          <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-500">Sales Overview Chart</span>
-          </div>
-        </div>
+          <Line 
+            data={salesData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: true, position: 'top' },
+                title: { display: true, text: 'Weekly Sales Overview' },
+              },
+            }}
+          />
+        </div> */}
+
 
         {/* Sales by Country */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">

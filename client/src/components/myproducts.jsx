@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import Footer from './footer';
 import SellerNav from './sellerNav';
 
@@ -80,7 +81,7 @@ export default function YourUploads() {
           {error && <p className="text-red-500">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.isArray(unblockedProducts) && unblockedProducts.map((product) => (
-              <div key={product._id} className="bg-white shadow-md rounded-lg overflow-hidden relative">
+              <div key={product._id} className=" bg-white shadow-lg border-gray-400 rounded-lg overflow-hidden relative">
                 <img
                   src={
                     product.product_images && product.product_images.length > 0
@@ -88,14 +89,21 @@ export default function YourUploads() {
                       : './public/images/default-image.png' // Fallback to a default image
                   }
                   alt={product.title}
-                  className={`w-full h-40 object-contain hover:cursor-pointer`}
+                  className="w-full h-40 object-contain hover:cursor-pointer"
                   onClick={() => navigate(`/product/${product._id}`)}
                 />
                 <div className="p-4">
-                  <h4 className="text-lg font-bold capitalize">{product.title}</h4>
+                  <h4 className="text-lg font-bold capitalize line-clamp-1">{product.title}</h4>
                   <p className="text-gray-900 font-semibold mt-2">₹ {product.price}</p>
                   <h4 className="text-md font-semibold text-gray-700 mt-2 line-clamp-1">{product.description}</h4>
                   <p className="text-gray-500 mt-2 capitalize">{product.category}</p>
+                  {/* Edit Button */}
+                  <button
+                    className="mt-4 bg-red-600 text-white text-sm font-semibold py-1 px-4 rounded"
+                    onClick={() => navigate(`/edit-product/${product._id}`)}
+                  >
+                    <FontAwesomeIcon icon={faPencil} className="mr-2" />
+                  </button>
                 </div>
               </div>
             ))}
@@ -108,16 +116,23 @@ export default function YourUploads() {
                       : './public/images/default-image.png' // Fallback to a default image
                   }
                   alt={product.title}
-                  className={`w-full h-40 object-contain hover:cursor-pointer filter blur-sm`}
+                  className="w-full h-40 object-contain hover:cursor-pointer filter blur-sm"
                 />
                 <span className="absolute top-1 left-7 w-1/3 text-center bg-red-600 text-white text-sm font-semibold px-2 py-1 rounded">
                   Blocked
                 </span>
                 <div className="p-4">
-                  <h4 className="text-lg font-bold capitalize">{product.title}</h4>
+                  <h4 className="text-lg font-bold capitalize line-clamp-1">{product.title}</h4>
                   <p className="text-gray-900 font-semibold mt-2">₹ {product.price}</p>
                   <h4 className="text-md font-semibold text-gray-700 mt-2 line-clamp-1">{product.description}</h4>
                   <p className="text-gray-500 mt-2 capitalize">{product.category}</p>
+                  {/* Edit Button */}
+                  <button
+                    className="mt-4 bg-red-600 text-white text-sm font-semibold py-1 px-4 rounded"
+                    onClick={() => navigate(`/edit-product/${product._id}`)}
+                  >
+                    <FontAwesomeIcon icon={faPencil} className="mr-2" />
+                  </button>
                 </div>
               </div>
             ))}

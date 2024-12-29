@@ -8,6 +8,9 @@ const AllProductsPage = () => {
   const [products, setProducts] = useState([]); // Store products
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
+  const [reason, setReason] = useState(""); // Reason for blocking
+  const [blockProductId, setBlockProductId] = useState(null); // The product ID being blocked
+  const [isBlocking, setIsBlocking] = useState(false); // State to track if blocking is in progress
 
   // Fetch all products
   useEffect(() => {
@@ -36,14 +39,24 @@ const AllProductsPage = () => {
     fetchProducts();
   }, []);
 
-  const handleBlockProduct = async (productId) => {
+  const handleBlockProduct = async () => {
+    if (!reason) {
+      setError("Please provide a reason to block the product.");
+      return;
+    }
+
     try {
-      await axios.put(`${baseUrl}/blockProduct/${productId}`, {}, {
-        headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
+      setIsBlocking(true);
+      await axios.put(`${baseUrl}/blockProduct/${blockProductId}`, { reason }, {
+        headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` },
       });
-      setProducts(prevProducts => prevProducts.filter(product => product._id !== productId));
+      setProducts(prevProducts => prevProducts.filter(product => product._id !== blockProductId));
+      setIsBlocking(false);
+      setReason(""); // Reset reason input
+      setBlockProductId(null); // Reset the selected product ID
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Failed to block product.");
+      setIsBlocking(false);
     }
   };
 
@@ -72,12 +85,35 @@ const AllProductsPage = () => {
                 <p className="text-gray-500 capitalize">Sold by: {product.userId?.name}</p> {/* Display the seller's name */}
                 <p className="text-gray-500">Uploaded on: {new Date(product.createdAt).toLocaleDateString()}</p>
               </Link>
-              <button 
-                onClick={() => handleBlockProduct(product._id)}
+
+              <button
+                onClick={() => {
+                  setBlockProductId(product._id); // Set product ID to be blocked
+                }}
                 className="mt-2 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-800"
               >
                 Block
               </button>
+
+              {/* Show reason input and block confirmation only if this product is selected for blocking */}
+              {blockProductId === product._id && (
+                <div className="mt-4">
+                  <textarea
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="Enter reason for blocking"
+                    rows="4"
+                    className="w-full p-2 border border-gray-300 rounded"
+                  />
+                  <button
+                    onClick={handleBlockProduct}
+                    disabled={isBlocking}
+                    className={`mt-2 bg-red-600 text-white py-1 px-3 rounded hover:bg-red-800 ${isBlocking ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {isBlocking ? 'Blocking...' : 'Confirm Block'}
+                  </button>
+                </div>
+              )}
             </div>
           ))
         ) : (

@@ -7,6 +7,8 @@ const fileUpload = require('../utils/file-upload').fileUpload;
 const UpgradeRequest = require('../db/models/upgradeReq');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+const { sendEmail } = require('../utils/send-email');
+const { upgradeApprovalNotification } = require('../utils/email-templates/upgrade');
 
 const jwt = require('jsonwebtoken');
 
@@ -376,6 +378,19 @@ exports.approveUpgrade = [authenticate, async (req, res) => {
 
         // Delete the upgrade request after approval
         await UpgradeRequest.findByIdAndDelete(requestId); 
+
+        // Generate email template
+        const emailTemplate = await upgradeApprovalNotification(
+            upgradeRequest.userId.name, 
+            upgradeRequest.companyName
+        );
+
+        // Send email notification
+        await sendEmail(
+            upgradeRequest.userId.email, 
+            'Upgrade Approved - Welcome to Seller Dashboard!', 
+            emailTemplate
+        );
 
         res.status(200).send({ 
             message: 'User upgraded to seller and request deleted', 

@@ -33,26 +33,22 @@ exports.createOrder = [
     authenticate, // Middleware to authenticate the user
     async (req, res) => {
         try {
-            // Extract userId from req.user, set by the authentication middleware
-            const userId = req.user.id;
-
-            // Extract order details from the request body
+            const userId = req.user.id; // Get user ID from authenticated session
             const { products, address, total, paymentMethod } = req.body;
 
-            // Validate products
+            // Validate products (whether buying from cart or single product page)
             if (!products || !Array.isArray(products) || products.length === 0) {
                 return res.status(400).json({ message: 'Products are required and must be an array.' });
             }
 
-            // Validate total
+            // Validate total amount
             if (!total || total <= 0) {
                 return res.status(400).json({ message: 'Invalid total amount.' });
             }
 
-            // Validate stock availability and seller check for each product
+            // Validate stock availability and seller check
             for (const item of products) {
-                const product = await Product.findById(item.productId); // Use `Product` model to find the product
-
+                const product = await Product.findById(item.productId);
                 if (!product) {
                     return res.status(404).json({ message: `Product with ID ${item.productId} not found.` });
                 }
@@ -64,7 +60,7 @@ exports.createOrder = [
                     });
                 }
 
-                // Check stock availability
+                // Check if stock is available
                 if (product.stock < item.quantity) {
                     return res.status(400).json({
                         message: `Not enough stock for product: ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}`,
@@ -72,25 +68,24 @@ exports.createOrder = [
                 }
             }
 
-            // Create a new order document
+            // Create the order in the database
             const newOrder = new order({
                 userId,
-                products, // Example: [{ productId: "123", quantity: 2 }]
+                products,
                 address,
                 total,
-                paymentMethod, // Example: 'credit_card', 'paypal', etc.
-                status: 'pending', // Default order status
+                paymentMethod,
+                status: 'pending', // Default status
             });
 
-            // Save the order to the database
-            const savedOrder = await newOrder.save();
+            const savedOrder = await newOrder.save(); // Save the order
 
-            // Decrease stock for each product
+            // Decrease stock for each product in the order
             for (const item of products) {
                 await Product.findByIdAndUpdate(
                     item.productId,
-                    { $inc: { stock: -item.quantity } }, // Decrease stock
-                    { new: true } // Return the updated document
+                    { $inc: { stock: -item.quantity } },
+                    { new: true }
                 );
             }
 

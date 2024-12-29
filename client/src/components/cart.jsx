@@ -146,12 +146,7 @@ export default function Cart() {
           <p className="text-gray-600 mb-4">
             Looks like you havent added anything to your cart yet.
           </p>
-          <button
-            onClick={() => navigate("/Home")}
-            className="px-6 py-2 bg-black text-white font-semibold rounded-lg hover:bg-gray-800"
-          >
-            Shop Now
-          </button>
+          
         </div>
         ) : (
           

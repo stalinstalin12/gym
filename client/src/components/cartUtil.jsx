@@ -17,7 +17,10 @@ export const addToCart = async (productId, token, setCartItems) => {
     );
 
     toast.success('Product added to cart successfully');
-    setCartItems((prevItems) => [...prevItems, response.data.cart.items]);
+
+    // Update cartItems with the product IDs from the updated cart
+    const updatedCartItems = response.data.cart.items.map((item) => item.productId);
+    setCartItems(updatedCartItems);
   } catch (error) {
     toast.error(
       error.response?.data?.message || error.message || 'Error adding to cart'

@@ -12,8 +12,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "chart.js": "^4.4.7",
     "concurrently": "^9.1.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dropzone": "^14.3.5",
     "react-star-ratings": "^2.3.0"
-    }
+  }
 }

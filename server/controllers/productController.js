@@ -1,4 +1,7 @@
-const products=require('../db/models/product');
+const { sendEmail } = require('../utils/send-email'); // Adjust the path as needed
+const products = require('../db/models/product'); // Adjust the path as needed
+const users = require('../db/models/users'); // Adjust the path as needed
+const { productBlockedNotification } = require('../utils/email-templates/bocked');
 const success_function = require('../utils/response-handler').success_function;
 const error_function = require('../utils/response-handler').error_function;
 const {fileUpload} = require('../utils/file-upload');
@@ -193,7 +196,9 @@ exports.viewProductsByCategory = async (req, res) => {
         console.log("Requested category:", category);
 
         // Fetch products matching the category
-        const product = await products.find({ category: category });
+        const product = await products.find({ category: category,
+            $or: [{ blocked:  false  }, { blocked: { $exists: false } }]
+         });
 
         // Respond with filtered products
         if (product.length > 0) {
@@ -251,18 +256,99 @@ exports.getProductsByUser = async (req, res) => {
   };
 
 //block product
-exports.blockProduct = async (req, res) => { 
-    try { 
-        const productId = req.params.id; 
-        const updatedProduct = await products.findByIdAndUpdate(productId, { blocked: true }, { new: true }); 
-        if (!updatedProduct) { 
-            return res.status(404).send({ message: 'Product not found' }); 
-        } res.status(200).send({ message: 'Product blocked successfully', data: updatedProduct }); 
-    } 
-    catch (error) { 
-        res.status(500).send({ message: 'Something went wrong', error: error.message }); 
-    } 
+exports.blockProduct = async function (req, res) {
+    try {
+      const productId = req.params.id;
+      const { reason } = req.body;
+      if (!reason) {
+        return res.status(400).send({ message: 'Please provide a reason for blocking the product' });
+      }
+  
+      // Find and block the product
+      const updatedProduct = await products.findByIdAndUpdate(
+        productId,
+        { blocked: true },
+        { new: true }
+      );
+  
+      if (!updatedProduct) {
+        res.status(404).send({ message: 'Product not found' });
+        return;
+      }
+  
+      // Fetch the seller of the product
+      const seller = await users.findById(updatedProduct.userId);
+
+      if (!seller) {
+        res.status(404).send({ message: 'Seller not found' });
+        return;
+      }
+  
+      // Generate email content
+      const emailContent = await productBlockedNotification(
+        seller.name, // Seller's name
+        updatedProduct.title, // Product's name
+       reason, 
+        'flex@fitness.com' // Support email
+      );
+  
+      // Send email notification
+      const emailSent = await sendEmail(
+        seller.email, // Recipient's email
+        'Product Blocked Notification', // Subject
+        emailContent // HTML content
+      );
+  
+      if (!emailSent) {
+        res.status(500).send({ message: 'Failed to send email to seller' });
+        return;
+      }
+  
+      // Return success response
+      res.status(200).send({
+        message: 'Product blocked successfully and email sent to the seller',
+        data: updatedProduct
+      });
+    } catch (error) {
+      console.log('Error:', error);
+      res.status(400).send(error.message ? error.message : 'Something went wrong');
+    }
 };
+
+
+//update product
+exports.updateProduct = [authenticate, async (req, res) => {
+    try {
+        const userId = req.user.id; // Logged-in user's ID
+        const { productId } = req.params; // Product ID from request params
+        const updateData = req.body; // Product data to update from request body
+
+        // Find the product to ensure it exists and belongs to the logged-in user
+        const product = await products.findOne({ _id: productId, userId });
+
+        if (!product) {
+            return res.status(404).json({
+                message: "Product not found or you do not have permission to update this product.",
+            });
+        }
+
+        // Update the product with new details
+        const updatedProduct = await products.findByIdAndUpdate(productId, updateData, {
+            new: true, // Return the updated document
+            runValidators: true, // Ensure schema validations are applied
+        });
+
+        return res.status(200).json({
+            message: "Product updated successfully.",
+            data: updatedProduct,
+        });
+    } catch (error) {
+        console.error("Error updating product:", error);
+        return res.status(500).json({
+            message: error.message || "An error occurred while updating the product.",
+        });
+    }
+}];
 
 
 

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 
-const AddProductForm = () => {
+const UpdateProductForm = () => {
+    const { productId } = useParams(); // Get productId from URL params
     const [formData, setFormData] = useState({
         title: "",
         product_images: [],
@@ -15,6 +17,24 @@ const AddProductForm = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
 
+    useEffect(() => {
+        // Fetch the product details when the component mounts
+        const fetchProductDetails = async () => {
+            try {
+                const token = localStorage.getItem("authToken");
+                const response = await axios.get(`http://localhost:4000/product/${productId}`, {
+                    headers: { Authorization: `bearer ${token}` },
+                });
+                setFormData(response.data);
+            } catch (error) {
+                console.error("Error fetching product details:", error);
+                setMessage("Failed to fetch product details. Please try again.");
+            }
+        };
+
+        fetchProductDetails();
+    }, [productId]);
+
     const onDrop = (acceptedFiles) => {
         acceptedFiles.forEach((file) => {
             const reader = new FileReader();
@@ -24,16 +44,16 @@ const AddProductForm = () => {
                     product_images: [...prevData.product_images, reader.result],
                 }));
             };
-            reader.readAsDataURL(file); 
+            reader.readAsDataURL(file);
         });
     };
 
     const { getRootProps, getInputProps } = useDropzone({
         onDrop,
         accept: {
-            "image/*": [".jpeg", ".png", ".jpg", ".gif" ,".webp"],
+            "image/*": [".jpeg", ".png", ".jpg", ".gif", ".webp"],
         },
-        multiple: true, // Allow multiple file uploads
+        multiple: true,
     });
 
     const handleInputChange = (e) => {
@@ -54,30 +74,21 @@ const AddProductForm = () => {
         }
 
         try {
-            // Submit the form data including the array of base64 images
-            const response = await axios.post(
-                "http://localhost:4000/product",
+            const response = await axios.put(
+                `http://localhost:4000/products/${productId}`,
                 formData,
                 {
                     headers: { Authorization: `bearer ${token}` },
                 }
             );
 
-            if (response.status === 201) {
-                setMessage("Product added successfully!");
-                setFormData({
-                    title: "",
-                    product_images: [],
-                    price: "",
-                    category: "",
-                    stock: "",
-                    description: "",
-                });
+            if (response.status === 200) {
+                setMessage("Product updated successfully!");
             } else {
-                setMessage(response.data.message || "Failed to add product.");
+                setMessage(response.data.message || "Failed to update product.");
             }
         } catch (error) {
-            console.error("Error adding product:", error);
+            console.error("Error updating product:", error);
             setMessage("An error occurred. Please try again.");
         } finally {
             setLoading(false);
@@ -86,7 +97,7 @@ const AddProductForm = () => {
 
     return (
         <div className="max-w-sm mx-auto mt-10 bg-white p-6 rounded-lg shadow-xl">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Add Product</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Update Product</h2>
             {message && (
                 <div
                     className={`mb-4 p-2 rounded ${
@@ -120,7 +131,7 @@ const AddProductForm = () => {
                         className="border-2 border-dashed p-6 text-center cursor-pointer"
                     >
                         <input {...getInputProps()} />
-                        <p>Drag & drop or click to upload images</p>
+                        <p>Drag & drop or click to upload new images</p>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                         {formData.product_images.map((image, index) => (
@@ -188,13 +199,13 @@ const AddProductForm = () => {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-500 text-white p-2 rounded"
+                    className="w-full bg-red-600 text-white p-2 rounded"
                 >
-                    {loading ? "Submitting..." : "Add Product"}
+                    {loading ? "Updating..." : "Update Product"}
                 </button>
             </form>
         </div>
     );
 };
 
-export default AddProductForm;
+export default UpdateProductForm;
