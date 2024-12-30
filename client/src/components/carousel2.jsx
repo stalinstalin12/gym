@@ -33,7 +33,7 @@ export default function Carousel() {
   ];
 
   return (
-    <div className="carousel-container mb-8 mx-auto mt-4 max-w-screen-lg">
+    <div className="carousel-container mb-8 mx-auto  mt-4 max-w-full-xl">
       <Slider {...settings}>
         {images.map((image, index) => (
           <div key={index} className="h-[300px]">

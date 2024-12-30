@@ -11,6 +11,7 @@ import { faCartPlus, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { addToWishlist, removeFromWishlist } from './wishlistUtil'; // Import wishlist utils
 import Carousel2 from './carousel2';
+import Carousel from './carousel';
 
 export default function SellerHome() {
   const productSectionRef = useRef(null);
@@ -112,19 +113,22 @@ export default function SellerHome() {
     <>
       <SellerNav onSearch={setSearchQuery} />
       <div className="container-fluid w-full bg-white">
-        <ToastContainer />
-        <div className="relative container">
-          <Carousel2 />
-          <div className="absolute bottom-0 left-1/3 right-1/3 text-center py-4">
-            <button
-              onClick={handleScrollToProducts}
-              className="bg-black text-white font-bold py-2 px-4 rounded"
-            >
-              Explore Products
-            </button>
+          <ToastContainer />
+          <div className="relative container-fluid ">
+            <Carousel2 />
+            <div className="absolute bottom-0 left-1/3 right-1/3 text-center py-4">
+              <button
+                onClick={handleScrollToProducts}
+                className="bg-black text-white font-bold py-2 px-4 rounded-2xl"
+              >
+                Explore Products
+              </button>
+            </div>
           </div>
-        </div>
 
+          <Carousel />
+
+    
         {/* Special Offer Banner */}
         <div className="bg-yellow-100 border-2 border-yellow-500 text-yellow-700 p-4 rounded-md shadow-md mx-auto mt-2 container">
           <div className="flex justify-between items-center">

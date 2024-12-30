@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import AdminNav from "./AdminNav";
+import AdminNav from "./adminNav";
+import AdminBlockedProductsPage from "./blockedproducts";
 const baseUrl = 'http://localhost:4000';
 
 const AllProductsPage = () => {
@@ -120,6 +121,7 @@ const AllProductsPage = () => {
           <p>No products found.</p>
         )}
       </div>
+      <AdminBlockedProductsPage />
     </div>
   );
 };

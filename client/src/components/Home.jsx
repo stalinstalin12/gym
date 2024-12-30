@@ -114,7 +114,7 @@
         <Nav onSearch={setSearchQuery} />
         <div className="container-fluid w-full bg-white">
           <ToastContainer />
-          <div className="relative container">
+          <div className="relative container-fluid ">
             <Carousel2 />
             <div className="absolute bottom-0 left-1/3 right-1/3 text-center py-4">
               <button
@@ -167,16 +167,23 @@
                   <p className="text-green-600 font-semibold">In Stock</p>
                 )}
                 <div className="flex justify-between mt-2">
-                  <button
-                    onClick={() => {
-                      if (product.stock > 0) {
-                        addToCart(product._id, token, setCartItems);
-                      }
-                    }}
-                    className="p-2 bg-black hover:bg-gray-600 rounded-full w-9 h-9"
-                  >
-                    <FontAwesomeIcon icon={faCartPlus} className="text-white text-lg" />
-                  </button>
+                <button
+                        onClick={() => {
+                          if (product.stock > 0) {
+                            addToCart(product._id, token, setCartItems);
+                          }
+                        }}
+                        className={`p-2 h-9 w-9 rounded-full ${
+                          product.stock > 0
+                            ? cartItems.includes(product._id)
+                              ? 'bg-green-600 hover:bg-green-700'
+                              : 'bg-black hover:bg-gray-700'
+                            : 'bg-gray-400 cursor-not-allowed'
+                        }`}
+                        disabled={product.stock === 0 || product.stock == null}
+                      >
+                        <FontAwesomeIcon icon={faCartPlus} className="text-white text-lg" />
+                      </button>
                   <button
                     onClick={() =>
                       isInWishlist(product._id)

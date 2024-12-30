@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import AdminNav from "./AdminNav"; // Ensure this component is styled and functional
+import AdminNav from "./adminNav"; // Ensure this component is styled and functional
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faSpinner, faEye } from "@fortawesome/free-solid-svg-icons";

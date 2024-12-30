@@ -225,7 +225,7 @@ export default function Cart() {
             </p>
             <p className="mt-2">
               Total Amount:{" "}
-              <span className="font-bold text-green-600">
+              <span className="font-bold text-red-600">
                 RS. {calculateTotal().toFixed(2)}
               </span>
             </p>

@@ -1,6 +1,6 @@
 import { useState, useEffect,useRef } from "react";
 import axios from "axios";
-import AdminNav from "./AdminNav"; // Import the AdminNav component
+import AdminNav from "./adminNav"; // Import the AdminNav component
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 

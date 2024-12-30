@@ -286,17 +286,17 @@ exports.blockProduct = async function (req, res) {
   
       // Generate email content
       const emailContent = await productBlockedNotification(
-        seller.name, // Seller's name
-        updatedProduct.title, // Product's name
+        seller.name, 
+        updatedProduct.title, 
        reason, 
-        'flex@fitness.com' // Support email
+        'flex@fitness.com' 
       );
   
       // Send email notification
       const emailSent = await sendEmail(
-        seller.email, // Recipient's email
-        'Product Blocked Notification', // Subject
-        emailContent // HTML content
+        seller.email, 
+        'Product Blocked Notification', 
+        emailContent 
       );
   
       if (!emailSent) {
@@ -314,7 +314,45 @@ exports.blockProduct = async function (req, res) {
       res.status(400).send(error.message ? error.message : 'Something went wrong');
     }
 };
+//block product
+exports.unblockProduct = async function (req, res) {
+    try {
+      const productId = req.params.id;
+      const { reason } = req.body;
+      
+  
+      // Find and block the product
+      const updatedProduct = await products.findByIdAndUpdate(
+        productId,
+        { blocked: false },
+        { new: true }
+      );
+  
+      if (!updatedProduct) {
+        res.status(404).send({ message: 'Product not found' });
+        return;
+      }
+  
+      // Fetch the seller of the product
+      const seller = await users.findById(updatedProduct.userId);
 
+      if (!seller) {
+        res.status(404).send({ message: 'Seller not found' });
+        return;
+      }
+  
+     
+  
+      // Return success response
+      res.status(200).send({
+        message: 'Product blocked successfully and email sent to the seller',
+        data: updatedProduct
+      });
+    } catch (error) {
+      console.log('Error:', error);
+      res.status(400).send(error.message ? error.message : 'Something went wrong');
+    }
+};
 
 //update product
 exports.updateProduct = [authenticate, async (req, res) => {
