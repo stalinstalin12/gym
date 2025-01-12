@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
+import SubNav from "./subNav";
 
 const AddProductForm = () => {
     const [formData, setFormData] = useState({
@@ -85,6 +86,8 @@ const AddProductForm = () => {
     };
 
     return (
+        <div>
+            <SubNav />
         <div className="max-w-sm mx-auto mt-10 bg-white p-6 rounded-lg shadow-xl">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Add Product</h2>
             {message && (
@@ -193,6 +196,7 @@ const AddProductForm = () => {
                     {loading ? "Submitting..." : "Add Product"}
                 </button>
             </form>
+        </div>
         </div>
     );
 };

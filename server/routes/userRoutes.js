@@ -18,5 +18,11 @@ router.get('/userprofile', userController.viewUserProfile);
 router.put('/updateUser',userController.updateUser)
 router.post('/requestUpgrade',setaccessControl('2'), userController.requestUpgrade);
 router.put('/approveUpgrade/:id',setaccessControl('1'), userController.approveUpgrade);
-router.get('/upgradeRequests',setaccessControl('1'),  userController.getAllUpgradeRequests)
+router.delete('/rejectUpgrade/:id', setaccessControl('1'), userController.rejectUpgrade);
+router.get('/upgradeRequests',setaccessControl('1'),  userController.getAllUpgradeRequests);
+// Block a user
+router.patch('/block/:id',setaccessControl('1'), userController.blockUser);
+
+// Unblock a user
+router.patch('/unblock/:id',setaccessControl('1'), userController.unblockUser);
 module.exports = router;

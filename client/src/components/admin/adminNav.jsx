@@ -6,12 +6,12 @@ import { useState } from 'react';
 import "../style.css"
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars ,faSearch,faUser} from '@fortawesome/free-solid-svg-icons';
+import { faBars ,faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminNav() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
+  // const [profileOpen, setProfileOpen] = useState(false);
   
 
   const logout = () => {
@@ -57,7 +57,7 @@ export default function AdminNav() {
 
       {/* Profile and search */}
       <div className="flex items-center gap-4">
-      <div className="max-md:h-9 lg:flex items-center gap-2 bg-transparent border-2 rounded-lg px-2 py-1">
+      {/* <div className="max-md:h-9 lg:flex items-center gap-2 bg-transparent border-2 rounded-lg px-2 py-1">
         <input
           type="text" 
           placeholder="Search..."
@@ -69,17 +69,17 @@ export default function AdminNav() {
         >
           <FontAwesomeIcon icon={faSearch} className="text-" />
         </button>
-      </div>
+      </div> */}
         {/* Profile Dropdown */}
         <div className="relative">
-          <button
+          <button title='LOGOUT'
             className="flex items-center gap-2 "
-            onClick={() => setProfileOpen(!profileOpen)}
+            onClick={logout}
           >
-          <FontAwesomeIcon icon={faUser} className="text-" />
+          <FontAwesomeIcon icon={faSignOutAlt} className="text-" />
           </button>
-          {profileOpen && (
-            <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-lg z-50 p-2 w-32">
+          
+            {/* <div className="absolute right-0 mt-2 bg-white text-black rounded shadow-lg z-50 p-2 w-32">
               <Link to="/Signup" className="block px-4 py-2 hover:bg-gray-200">
                 Signup
               </Link>
@@ -88,13 +88,13 @@ export default function AdminNav() {
               </Link>
               
               <button
-                onClick={logout}
+                
                 className="block w-full text-left px-4 py-2 hover:bg-gray-200"
               >
                 Logout
               </button>
-            </div>
-          )}
+            </div> */}
+         
         </div>
       </div>
     </nav>

@@ -11,7 +11,7 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSeller, setIsSeller] = useState(false);
+  // const [isSeller, setIsSeller] = useState(false);
   const [errors, setErrors] = useState({ name: '', email: '', password: '' });
   const navigate = useNavigate();
 
@@ -59,7 +59,7 @@ export default function Signup() {
       return;
     }
 
-    const data = { name, email, password, isSeller };
+    const data = { name, email, password };
     console.log("data:", data);
 
     try {
@@ -125,7 +125,7 @@ export default function Signup() {
             />
             {errors.password && <div id="pass-err" className="text-red-500 text-sm mt-1">{errors.password}</div>}
           </div>
-          <div className="form-group checkbox-group flex items-center justify-center mb-4">
+          {/* <div className="form-group checkbox-group flex items-center justify-center mb-4">
             <input
               type="checkbox"
               id="isSeller"
@@ -134,7 +134,7 @@ export default function Signup() {
               className="mr-2"
             />
             <label htmlFor="isSeller" className="text-red-600 font-serif">Seller?</label>
-          </div>
+          </div> */}
           <button type="submit" className="w-full bg-gradient-to-r from-red-500 to-red-700 text-white py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
             Register
           </button>

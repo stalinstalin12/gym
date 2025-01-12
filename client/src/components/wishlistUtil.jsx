@@ -21,7 +21,7 @@ export const addToWishlist = async (productId, token, setWishlistItems) => {
     const updatedWishlist = response.data.wishlist.fav.map((item) => item.productId);
 
     setWishlistItems(updatedWishlist); // Set the updated wishlist
-    toast.success('Product added to wishlist!');
+    
   } catch (error) {
     toast.error(
       error.response?.data?.message || error.message || 'Failed to add to wishlist'
@@ -46,7 +46,7 @@ export const removeFromWishlist = async (productId, token, setWishlistItems) => 
     const updatedWishlist = response.data.wishlist.fav.map((item) => item.productId);
 
     setWishlistItems(updatedWishlist); // Set the updated wishlist
-    toast.success('Product removed from wishlist!');
+    
   } catch (error) {
     toast.error(
       error.response?.data?.message || error.message || 'Failed to remove from wishlist'

@@ -20,7 +20,11 @@ const users = new mongoose.Schema({
     user_type : {
         type : mongoose.Schema.Types.ObjectId,
         ref : "user_types"
-    }    
+    } ,
+    isBlocked: {
+        type: Boolean,
+        default: false // False means not blocked, True means blocked
+    },
 },
 {
     timestamps: true, // Automatically add `createdAt` and `updatedAt` fields

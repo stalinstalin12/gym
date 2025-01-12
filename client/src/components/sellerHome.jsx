@@ -50,8 +50,9 @@ export default function SellerHome() {
 
         const allProducts = response.data.data;
         const productsNotAddedByUser = allProducts.filter(
-          (product) => product.userId._id !== userId
+          (product) => product.userId && product.userId._id !== userId
         );
+        
 
         setProducts(allProducts);
         setFilteredProducts(productsNotAddedByUser);
@@ -74,6 +75,26 @@ export default function SellerHome() {
         console.error('Error fetching wishlist:', err);
       }
     };
+
+    const fetchCart = async () => {
+      if (!token) return;
+      try {
+        const response = await axios.get(`${baseUrl}/viewCart`, {
+          headers: { Authorization: `bearer ${token}` },
+        });
+        setCartItems(response.data.items.map((item) => item.productId._id));
+        // Update localStorage to sync with the backend cart
+        localStorage.setItem('cartItems', JSON.stringify(response.data.items.map((item) => item.productId._id)));
+      } catch (err) {
+        console.error('Error fetching cart:', err);
+      }
+    };
+
+    // Get cart items from localStorage if available
+    const localCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    setCartItems(localCartItems);
+    
+    fetchCart();
 
     fetchProducts();
     fetchWishlist();
@@ -144,128 +165,154 @@ export default function SellerHome() {
           </div>
         </div>
 
-        {/* Filters Section */}
-        <div className="container mx-auto my-8 p-4">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">Filters</h3>
-          <div className="flex flex-wrap gap-6">
-            {/* Category Filter */}
-            <div>
-              <label className="block text-gray-700">Category</label>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="block w-full p-2 border rounded"
-              >
-                <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="container mx-auto my-8 px-4">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    {/* Filters Section */}
+    <div className="col-span-1 bg-white border-r-2 p-4 rounded-md shadow-sm">
+      <h3 className="text-xl font-bold text-gray-800 mb-4">Filters</h3>
+      
+      {/* Category Filter */}
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Category</label>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="block w-full p-2 border rounded-lg"
+        >
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
 
-            {/* Price Range Filter */}
-            <div>
-              <label className="block text-gray-700">Price Range</label>
-              <input
-                type="range"
-                min="0"
-                max="100000"
-                value={priceRange[1]}
-                onChange={(e) => setPriceRange([0, e.target.value])}
-                className="block w-full"
-              />
-              <p>₹ 0 - ₹ {priceRange[1]}</p>
-            </div>
-
-            {/* Stock Filter */}
-            <div>
-              <label className="block text-gray-700">Stock</label>
-              <select
-                value={stockFilter}
-                onChange={(e) => setStockFilter(e.target.value)}
-                className="block w-full p-2 border rounded"
-              >
-                <option value="">All</option>
-                <option value="inStock">In Stock</option>
-                <option value="outOfStock">Out of Stock</option>
-              </select>
-            </div>
+      {/* Price Range Filter */}
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Price Range</label>
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <label className="block text-sm text-gray-600 mb-1">Min Price</label>
+            <input
+              type="number"
+              value={priceRange[0]}
+              min="0"
+              max="100000"
+              onChange={(e) =>
+                setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])
+              }
+              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="₹ 0"
+            />
+          </div>
+          <div className="flex-1">
+            <label className="block text-sm text-gray-600 mb-1">Max Price</label>
+            <input
+              type="number"
+              value={priceRange[1]}
+              min={priceRange[0]}
+              max="100000"
+              onChange={(e) =>
+                setPriceRange([priceRange[0], parseInt(e.target.value)])
+              }
+              className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="₹ 100000"
+            />
           </div>
         </div>
+        <p className="text-sm text-gray-500 mt-2">
+          ₹ {priceRange[0]} - ₹ {priceRange[1]}
+        </p>
+      </div>
 
-        {/* Products Section */}
-        <div ref={productSectionRef} className="container mx-auto my-8 px-4">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">Our Products</h3>
-          {loading && <p>Loading products...</p>}
-          {error && <p className="text-red-500">{error}</p>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {productsToDisplay.map((product) => (
-              <div key={product._id} className="bg-white drop-shadow-xl rounded-lg overflow-hidden">
-                <img
-                  src={
-                    product.product_images && product.product_images.length > 0
-                      ? `${baseUrl}/${product.product_images[1]}`
-                      : './public/images/default-image.png'
-                  }
-                  alt={product.title}
-                  className="w-full h-40 object-contain hover:cursor-pointer"
-                  onClick={() => navigate(`/product/${product._id}`)}
-                />
-                <div className="p-4">
-                  <h4 className="text-lg font-bold capitalize line-clamp-1">{product.title}</h4>
-                  <p className="text-gray-900 font-semibold mt-2">₹ {product.price}</p>
-                  <h4 className="text-md font-semibold text-gray-700 mt-2 line-clamp-1">{product.description}</h4>
-                  <p className="text-gray-500 mt-2 capitalize">{product.category}</p>
-                  {product.stock === 0 || product.stock == null ? (
-                    <p className="text-red-600 font-semibold">Out Of Stock</p>
-                  ) : (
-                    <p className="text-green-600 font-semibold">In Stock</p>
-                  )}
+      {/* Stock Filter */}
+      <div>
+        <label className="block text-gray-700 mb-2">Stock</label>
+        <select
+          value={stockFilter}
+          onChange={(e) => setStockFilter(e.target.value)}
+          className="block w-full p-2 border rounded-lg"
+        >
+          <option value="">All</option>
+          <option value="inStock">In Stock</option>
+          <option value="outOfStock">Out of Stock</option>
+        </select>
+      </div>
+    </div>
 
-                  <div className="flex justify-between mt-3">
-                    {/* Add to Cart Button */}
-                    <button
-                        onClick={() => {
-                          if (product.stock > 0) {
-                            addToCart(product._id, token, setCartItems);
-                          }
-                        }}
-                        className={`p-2 h-9 w-9 rounded-full ${
-                          product.stock > 0
-                            ? cartItems.includes(product._id)
-                              ? 'bg-green-600 hover:bg-green-700'
-                              : 'bg-black hover:bg-gray-700'
-                            : 'bg-gray-400 cursor-not-allowed'
-                        }`}
-                        disabled={product.stock === 0 || product.stock == null}
-                      >
-                        <FontAwesomeIcon icon={faCartPlus} className="text-white text-lg" />
-                      </button>
-
-                    {/* Wishlist Button */}
-                    <button
-                      onClick={() =>
-                        isInWishlist(product._id)
-                          ? removeFromWishlist(product._id, token, setWishlistItems)
-                          : addToWishlist(product._id, token, setWishlistItems)
+    {/* Products Section */}
+    <div ref={productSectionRef} className="col-span-3">
+      <h3 className="text-2xl font-bold text-gray-800 mb-4">Our Products</h3>
+      {loading && <p>Loading products...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {productsToDisplay.map((product) => (
+          product.userId && product.userId._id ? (
+            <div key={product._id} className="bg-white drop-shadow-xl rounded-lg overflow-hidden">
+              <img
+                src={
+                  product.product_images && product.product_images.length > 0
+                    ? `${baseUrl}/${product.product_images[1]}`
+                    : './public/images/default-image.png'
+                }
+                alt={product.title}
+                className="w-full h-40 object-contain hover:cursor-pointer"
+                onClick={() => navigate(`/product/${product._id}`)}
+              />
+              <div className="p-4">
+                <h4 className="text-lg font-bold capitalize line-clamp-1">{product.title}</h4>
+                <p className="text-gray-900 font-semibold mt-2">₹ {product.price}</p>
+                <h4 className="text-md font-semibold text-gray-700 mt-2 line-clamp-1">{product.description}</h4>
+                <p className="text-gray-500 mt-2 capitalize">{product.category}</p>
+                {product.stock === 0 || product.stock == null ? (
+                  <p className="text-red-600 font-semibold">Out Of Stock</p>
+                ) : (
+                  <p className="text-green-600 font-semibold">In Stock</p>
+                )}
+                <div className="flex justify-between mt-3">
+                  <button
+                    onClick={() => {
+                      if (product.stock > 0) {
+                        addToCart(product._id, token, setCartItems);
                       }
-                      className={`p-2 rounded-full w-9 h-9 ${
-                        isInWishlist(product._id) ? 'bg-red-600' : 'bg-black'
-                      }`}
-                    >
-                      <FontAwesomeIcon
-                        icon={faHeart}
-                        className={`text-lg ${isInWishlist(product._id) ? 'text-white' : 'text-white'}`}
-                      />
-                    </button>
-                  </div>
+                    }}
+                    className={`p-2 h-9 w-9 rounded-full ${
+                      product.stock > 0
+                        ? cartItems.includes(product._id)
+                          ? 'bg-green-600 hover:bg-green-700'
+                          : 'bg-black hover:bg-gray-700'
+                        : 'bg-gray-400 cursor-not-allowed'
+                    }`}
+                    disabled={product.stock === 0 || product.stock == null}
+                  >
+                    <FontAwesomeIcon icon={faCartPlus} className="text-white text-lg" />
+                  </button>
+                  <button
+                    onClick={() =>
+                      isInWishlist(product._id)
+                        ? removeFromWishlist(product._id, token, setWishlistItems)
+                        : addToWishlist(product._id, token, setWishlistItems)
+                    }
+                    className={`p-2 rounded-full w-9 h-9 ${
+                      isInWishlist(product._id) ? 'bg-red-600' : 'bg-black'
+                    }`}
+                  >
+                    <FontAwesomeIcon
+                      icon={faHeart}
+                      className={`text-lg ${isInWishlist(product._id) ? 'text-white' : 'text-white'}`}
+                    />
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ) : null
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
       </div>
       <Footer />
     </>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import AdminNav from "./adminNav";
 
 const baseUrl = 'http://localhost:4000';
 
@@ -43,6 +44,9 @@ const AllUsersOrdersPage = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
+    <div className="container-fluid">
+      <AdminNav />
+   
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">View All  Orders</h1>
       {orders.length > 0 ? (
@@ -78,6 +82,7 @@ const AllUsersOrdersPage = () => {
       ) : (
         <p>No orders found.</p>
       )}
+    </div>
     </div>
   );
 };

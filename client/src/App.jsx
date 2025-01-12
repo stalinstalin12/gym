@@ -22,6 +22,8 @@ import AllUsersOrdersPage from "./components/admin/allOrders";
 import AllProductsPage from "./components/admin/allProducts";
 import LoadingWrapper from "./components/loadingWrapper"; // Import the LoadingWrapper component
 import UpdateProductForm from "./components/updateProduct";
+import OrderSuccess from "./components/orderSuccess";
+import Earnings from "./components/Earnings";
 
 function App() {
   return (
@@ -65,6 +67,22 @@ function App() {
             <LoadingWrapper>
               <Signup />
             </LoadingWrapper>
+          }
+        />
+        <Route
+          path="/Earnings"
+          element={
+            <LoadingWrapper>
+              <Earnings />
+            </LoadingWrapper>
+          }
+        />
+        <Route
+          path="/ordersuccess"
+          element={
+            
+              <OrderSuccess />
+           
           }
         />
         <Route

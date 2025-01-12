@@ -1,19 +1,25 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import { addToCart } from './cartUtil'; // Import the shared addToCart utility
+import {  ToastContainer } from "react-toastify";
+import { addToCart,fetchCartItems } from './cartUtil'; // Import the shared addToCart utility
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo,faExchange} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
+import SubNav from "./subNav";
 const baseUrl = 'http://localhost:4000';
+
 
 export default function ProductDetails() {
   const { id } = useParams();
+  const [blockReason, setBlockReason] = useState("");  // Store block reason
+  const [isBlockFormVisible, setIsBlockFormVisible] = useState(false);  // Control the visibility of the block form
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [userType, setUserType] = useState(null);
   const [showReviews, setShowReviews] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(true);
-  console.log(reviewLoading)
   const [reviews, setReviews] = useState([]); // State for existing reviews
   const [rating, setRating] = useState(0); // State for star rating
   const [comment, setComment] = useState(''); // State for review comment
@@ -24,9 +30,20 @@ export default function ProductDetails() {
   const [cartItems, setCartItems] = useState([]);
   const [similarProducts, setSimilarProducts] = useState([]);
   const token = localStorage.getItem('authToken'); // Get the token from localStorage
+  
   const navigate =useNavigate();
 
- 
+  useEffect(() => {
+    const userId = localStorage.getItem("userId"); // Get userId from localStorage
+    if (userId) {
+      setLoggedInUserId(userId); // Set the userId if it exists in localStorage
+    }
+  }, []);
+  useEffect(() => {
+    // Get user type from localStorage and sync it to state
+    const storedUserType = localStorage.getItem("user_type");
+    setUserType(storedUserType);
+  }, []);
   
 
   useEffect(() => {
@@ -47,9 +64,33 @@ export default function ProductDetails() {
     };
 
     fetchProduct();
-  }, [id]);
+  }, [id]
+);
+useEffect(() => {
+  const fetchCart = async () => {
+    try {
+      await fetchCartItems(token, setCartItems); // Fetch cart items on component load
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+    }
+  };
+  fetchCart();
+}, [token]);
+
+
+const isInCart = (id) => {
+  
+  return cartItems.includes(id); // Directly check for the ID
+};
+
+
+const handleAddToCart = (productId) => {
+  addToCart(productId, token, setCartItems);
+};
 
   useEffect(() => {
+    
+    
     const fetchReviews = async () => {
       try {
         const reviewsResponse = await axios.get(`${baseUrl}/reviews/${id}`);
@@ -75,7 +116,7 @@ export default function ProductDetails() {
       }
 
       
-
+      console.log(searchQuery)
       const newReview = { rating, comment, productId:id };
       const response = await axios.post(`${baseUrl}/reviews`, newReview,{
         headers: {
@@ -86,6 +127,8 @@ export default function ProductDetails() {
 
       // Update reviews list with the new review
       setReviews((prevReviews) => [...prevReviews, response.data.data]);
+      console.log(reviewLoading)
+
       setRating(0); // Reset rating
       setComment(); // Reset comment
       setError(null); // Clear any errors
@@ -105,19 +148,62 @@ export default function ProductDetails() {
     }
   };
 
+  const handleBlockProduct = async () => {
+    try {
+      if (!blockReason) {
+        alert("Please provide a reason for blocking.");
+        return;
+      }
+  
+      const response = await axios.put(
+        `${baseUrl}/blockProduct/${id}`, 
+        { reason: blockReason },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        alert("Product has been blocked successfully.");
+        setIsBlockFormVisible(false);  // Hide the block form after submission
+        // Optionally, you can update the product status in the UI here.
+      }
+    } catch (error) {
+      console.error("Error blocking the product:", error);
+      alert("Failed to block the product. Please try again.");
+    }
+  };
+  
+
+  const handleBuyNow = () => {
+    if (userType !== "674ddd8ada8e8225185e33b6") {
+    navigate("/Checkout", {
+      state: {
+        cartItems: [
+          {
+            productId: product,
+            quantity: 1,
+          },
+        ],
+        total: product.price,
+      },
+    });
+  }
+  };
+
   
 
   if (loading) return <p>Loading...</p>;
+  
   if (error) return <p className="text-red-500">{error}</p>;
 
-  const handleAddToCart = () => {
-    if (product.stock > 0) {
-      addToCart(product._id, token, setCartItems);
-      console.log(cartItems)
-    } else {
-      toast.error("Product is out of stock.");
-    }
-  };
+  
+
+ 
+  
+  
 
   const calculateAverageRating = () => {
     if (reviews.length === 0) return 0;
@@ -138,7 +224,9 @@ export default function ProductDetails() {
   const averageRating = calculateAverageRating();
 
   return (
+    <div className="div"><SubNav onSearch={setSearchQuery}/>
     <div className="container-fluid mx-auto px-4 py-8 bg-white h-screen font-serif">
+      
       <ToastContainer />
       {/* Page Heading */}
       <h1 className="text-3xl font-bold text-center capitalize mb-8">{product.title}</h1>
@@ -220,18 +308,89 @@ export default function ProductDetails() {
 
           {/* Action Buttons */}
           <div className="flex flex-col ml-36">
-            <button className="w-2/3 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800">
+            {/* Block Product Button (visible only to admin) */}
+            {userType === "674ddd8ada8e8225185e33b6" && (  
+              <button
+                onClick={() => setIsBlockFormVisible(true)}  // Show the block reason form when clicked
+                className="w-2/3 py-2 bg-white text-red-600 border-2 border-red-600 font-semibold rounded-md hover:text-white hover:bg-red-700"
+              >
+                Block Product
+              </button>
+            )}
+            {isBlockFormVisible && (
+  <div className="mt-4 p-4 border rounded-md bg-gray-50">
+    <h3 className="text-xl font-semibold mb-2">Block Product</h3>
+    <label htmlFor="blockReason" className="block text-gray-700">Reason for blocking:</label>
+    <textarea
+      id="blockReason"
+      value={blockReason}
+      onChange={(e) => setBlockReason(e.target.value)}
+      className="w-full border rounded p-2"
+      rows="4"
+      placeholder="Provide a reason for blocking this product..."
+    ></textarea>
+    <div className="mt-4">
+      <button
+        onClick={handleBlockProduct}
+        className="bg-white text-red-600 border-2 border-red-600 px-4 py-2 rounded hover:bg-red-700"
+      >
+        Submit
+      </button>
+      <button
+        onClick={() => setIsBlockFormVisible(false)}  // Hide the form if cancelled
+        className="ml-2 bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+      >
+        Cancel
+        </button>
+        </div>
+      </div>
+    )}
+
+            {userType !== "674ddd8ada8e8225185e33b6"&&loggedInUserId && loggedInUserId === product.userId  && (  
+              <button
+              onClick={() => navigate(`/edit-product/${product._id}`)}  // Show the block reason form when clicked
+                className="w-2/3 py-2 bg-white text-black border-2 border-black font-semibold rounded-md hover:text-white hover:bg-black"
+              >
+                Update Product
+              </button>
+            )}
+
+          {userType !== "674ddd8ada8e8225185e33b6" && loggedInUserId && loggedInUserId !== product.userId &&(
+            <button
+              onClick={handleBuyNow}
+              className={`w-2/3 py-2 bg-black text-white font-semibold rounded-md ${
+                product.stock === 0
+                  ? "bg-black text-gray-400 cursor-not-allowed"
+                  : "hover:bg-gray-800"
+              }`}
+              disabled={product.stock === 0} // Disable the button when out of stock
+            >
               Buy Now
             </button>
-            <button
-              className={`w-2/3 mt-2 font-semibold py-2 border border-gray-300 rounded-md text-gray-800 ${
-                product.stock === 0 ? "cursor-not-allowed bg-gray-200" : "hover:bg-gray-200"
-              }`}
-              disabled={product.stock === 0}
-              onClick={handleAddToCart} // Use the shared addToCart function
-            >
-              Add to Cart
-            </button>
+          )}
+            {userType !== "674ddd8ada8e8225185e33b6" &&loggedInUserId && loggedInUserId !== product.userId && (
+  <button
+    className={`w-2/3 mt-2 font-semibold py-2 border border-gray-300 rounded-md text-gray-800 ${
+      product.stock === 0
+        ? "cursor-not-allowed bg-gray-200"
+        : isInCart(product._id)
+        ? "bg-green-500 text-white hover:bg-green-600"
+        : "hover:bg-gray-200"
+    }`}
+    disabled={product.stock === 0}
+    onClick={() => {
+      if (isInCart(product._id)) {
+        navigate('/cart'); // Redirect to cart if already in cart
+      } else {
+        handleAddToCart(product._id); // Add to cart
+      }
+    }}
+  >
+    {isInCart(product._id) ? "Go to Cart" : "Add to Cart"}
+  </button>
+)}
+
+
           </div>
 
           <div className="w-full h-0.5 mt-5 bg-slate-100"></div>
@@ -247,7 +406,7 @@ export default function ProductDetails() {
             <p className="text-sm font-medium text-gray-600">15 days exchange</p>
           </div>
         </div>
-
+{/* 
         <div className="mt-10">
           <p className=" font-bold text-md font-sans text-gray-800">
             Check Delivery Availability
@@ -262,7 +421,7 @@ export default function ProductDetails() {
               Check
             </button>
           </div>
-        </div>
+        </div> */}
 
         
                {/* Rating and Reviews */}
@@ -402,7 +561,7 @@ export default function ProductDetails() {
               alt={similarProduct.title}
               className="w-full h-40 object-cover rounded-md"
             />
-            <h3 className="text-lg font-bold mt-2">{similarProduct.title}</h3>
+            <h3 className="text-lg font-bold mt-2 line-clamp-1">{similarProduct.title}</h3>
             <p className="text-red-600 font-semibold">₹ {similarProduct.price}</p>
             <button
               className="mt-3 w-full py-2 bg-black text-white rounded-md hover:bg-gray-800"
@@ -418,6 +577,7 @@ export default function ProductDetails() {
   </div>
     </div>
 
+    </div>
     </div>
     
      

@@ -6,6 +6,7 @@ const success_function = require('../utils/response-handler').success_function;
 const error_function = require('../utils/response-handler').error_function;
 const {fileUpload} = require('../utils/file-upload');
 const mongoose=require('mongoose');
+const Order=require("../db/models/orders")
 
 //authentication middleware
 const jwt = require('jsonwebtoken');
@@ -117,6 +118,36 @@ exports.viewProducts = async function (req, res) {
         return;
     }
 };
+
+// Delete product
+exports.deleteProduct = [authenticate, async (req, res) => {
+    try {
+        const userId = req.user.id; // Logged-in user's ID
+        const { productId } = req.params; // Product ID from request params
+
+        // Find the product to ensure it exists and belongs to the logged-in user
+        const product = await products.findOne({ _id: productId, userId });
+
+        if (!product) {
+            return res.status(404).json({
+                message: "Product not found or you do not have permission to delete this product.",
+            });
+        }
+
+        // Delete the product
+        await products.findByIdAndDelete(productId);
+
+        return res.status(200).json({
+            message: "Product deleted successfully.",
+        });
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        return res.status(500).json({
+            message: error.message || "An error occurred while deleting the product.",
+        });
+    }
+}];
+
 
 exports.viewBlockedProducts=async function (req,res) {
     try{
@@ -387,6 +418,78 @@ exports.updateProduct = [authenticate, async (req, res) => {
         });
     }
 }];
+
+
+//seller's purchases
+exports.getPurchasedProductsBySeller = [
+    authenticate,
+    async (req, res) => {
+        try {
+            const sellerId = req.user.id; // Logged-in seller's ID
+
+            // Find all products uploaded by the seller
+            const sellerProducts = await products.find({ userId: sellerId });
+
+            if (!sellerProducts.length) {
+                return res.status(404).json({
+                    message: "No products found for the seller.",
+                });
+            }
+
+            const productIds = sellerProducts.map((product) => product._id.toString()); // Get product IDs as strings
+
+            // Find orders that include the seller's products
+            const orders = await Order.find({
+                "products.productId": { $in: productIds }, // Match against product IDs
+            })
+                .populate("userId", "name email") // Populate buyer details
+                .populate("products.productId", "title price"); // Populate product details
+
+            if (!orders.length) {
+                return res.status(404).json({
+                    message: "No purchases found for the seller's products.",
+                });
+            }
+
+            // Format the response
+            const purchasedProducts = orders.map((order) => ({
+                orderId: order._id,
+                buyer: order.userId, // Buyer details
+                products: order.products
+                    .filter((product) =>
+                        product.productId && productIds.includes(product.productId._id.toString()) // Compare IDs as strings
+                    )
+                    .map((product) => ({
+                        productId: product.productId._id,
+                        title: product.productId.title,
+                        price: product.productId.price,
+                        quantity: product.quantity,
+                    })), // Extract required fields
+                total: order.products
+                    .filter((product) =>
+                        product.productId && productIds.includes(product.productId._id.toString()) // Same check for total calculation
+                    )
+                    .reduce((sum, product) => sum + product.productId.price * product.quantity, 0), // Calculate total for seller's products
+                address: order.address,
+                createdAt: order.createdAt,
+            }));
+
+            return res.status(200).json({
+                message: "Purchased products fetched successfully.",
+                data: purchasedProducts,
+            });
+        } catch (error) {
+            console.error("Error fetching purchased products:", error);
+            return res.status(500).json({
+                message: error.message || "An error occurred while fetching purchased products.",
+            });
+        }
+    },
+];
+
+
+
+  
 
 
 

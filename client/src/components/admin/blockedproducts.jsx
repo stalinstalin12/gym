@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import AdminNav from "./adminNav"; // Assuming you have an Admin Navigation component
 
 const baseUrl = 'http://localhost:4000';
 

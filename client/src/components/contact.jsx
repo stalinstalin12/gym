@@ -1,7 +1,9 @@
+import SubNav from "./subNav";
 
 const ContactPage = () => {
-  return (
+  return (<div><SubNav/>
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      
       <div className="flex flex-col lg:flex-row justify-between items-center w-full max-w-6xl p-6">
         {/* Left Section */}
         <div className="lg:w-1/2 p-6 space-y-8">
@@ -60,6 +62,7 @@ const ContactPage = () => {
           </form>
         </div>
       </div>
+    </div>
     </div>
   );
 };

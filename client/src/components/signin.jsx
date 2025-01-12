@@ -7,7 +7,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 function Signin() {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '' });
@@ -39,7 +38,12 @@ function Signin() {
     try {
       const response = await axios.post('http://localhost:4000/login', { email, password });
       console.log(response);
-      const { token, user_type } = response.data.data;
+      const { token, user_type, isBlocked } = response.data.data;
+
+      if (isBlocked) {
+        toast.error('Your account is banned. Please contact support.');
+        return;
+      }
 
       if (!response.data) {
         toast.error('Login failed');
@@ -47,8 +51,6 @@ function Signin() {
         localStorage.setItem('authToken', token);
         localStorage.setItem('userId', response.data.data._id);
         localStorage.setItem('user_type', user_type);
-
-        console.log(localStorage);
 
         toast.success("Login Successful");
         console.log("login successful");
@@ -60,12 +62,13 @@ function Signin() {
         } else if (localStorage.user_type === '674ddd8ada8e8225185e33b6') {
           navigate('/adminHome');
         } else {
-          alert("unknown usertype");
+          alert("Unknown user type");
         }
       }
     } catch (err) {
-      setErrors(err.response?.data?.error || 'Login Failed');
-      toast.error('Login Failed');
+      const errorMessage = err.response?.data?.message || 'Login Failed';
+      setErrors((prev) => ({ ...prev, general: errorMessage }));
+      toast.error(errorMessage);
     }
   };
 

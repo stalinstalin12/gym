@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
+import SubNav from "./subNav";
 
 const UpdateProductForm = () => {
     const { productId } = useParams(); // Get productId from URL params
@@ -96,6 +97,8 @@ const UpdateProductForm = () => {
     };
 
     return (
+        <div>
+            <SubNav />
         <div className="max-w-sm mx-auto mt-10 bg-white p-6 rounded-lg shadow-xl">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Update Product</h2>
             {message && (
@@ -204,6 +207,7 @@ const UpdateProductForm = () => {
                     {loading ? "Updating..." : "Update Product"}
                 </button>
             </form>
+        </div>
         </div>
     );
 };

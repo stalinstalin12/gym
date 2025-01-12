@@ -8,7 +8,10 @@ const UpgradeRequest = require('../db/models/upgradeReq');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const { sendEmail } = require('../utils/send-email');
+const blockedUserTemplate = require("../utils/email-templates/userblock")
 const { upgradeApprovalNotification } = require('../utils/email-templates/upgrade');
+const { upgradeRejectionNotification } = require('../utils/email-templates/upgrade');
+
 
 const jwt = require('jsonwebtoken');
 
@@ -405,9 +408,108 @@ exports.approveUpgrade = [authenticate, async (req, res) => {
     } 
 }];
 
+// Reject Upgrade Request
+exports.rejectUpgrade = [authenticate, async (req, res) => {
+    try {
+        const requestId = req.params.id;
+
+        // Find the upgrade request
+        const upgradeRequest = await UpgradeRequest.findById(requestId).populate('userId');
+
+        if (!upgradeRequest) {
+            return res.status(404).send({ message: 'Upgrade request not found' });
+        }
+
+        // Generate email template for rejection
+        const emailTemplate = await upgradeRejectionNotification(
+            upgradeRequest.userId.name,
+            upgradeRequest.companyName
+        );
+
+        // Send rejection email notification
+        await sendEmail(
+            upgradeRequest.userId.email,
+            'Upgrade Request Rejected',
+            emailTemplate
+        );
+
+        // Delete the upgrade request
+        await UpgradeRequest.findByIdAndDelete(requestId);
+
+        res.status(200).send({
+            message: 'Upgrade request rejected and deleted',
+            rejectedRequest: {
+                userId: upgradeRequest.userId._id,
+                companyName: upgradeRequest.companyName,
+                license: upgradeRequest.license
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ message: 'Something went wrong', error: error.message });
+    }
+}];
 
 
+// block user
+exports.blockUser = [authenticate, async (req, res) => {
+    try {
+        const id = req.params.id;  // User ID to block
+        const { reason } = req.body;
 
+        if (!reason) {
+            return res.status(400).send({ message: "Blocking reason is required" });
+        }
+        // Find the user and update the isBlocked field to true
+        const updatedUser = await users.findByIdAndUpdate(
+            id, 
+            { isBlocked: true ,blockReason: reason}, 
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
+        const emailMessage = blockedUserTemplate(updatedUser.name, reason);
+
+        await sendEmail([updatedUser.email], "Your Account Has Been Blocked", emailMessage);
+
+
+        res.status(200).send({
+            message: 'User blocked successfully',
+            data: updatedUser
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send({ message: 'Something went wrong', error: error.message });
+    }
+}];
+ 
+//unblock user
+exports.unblockUser = [authenticate, async (req, res) => {
+    try {
+        const id = req.params.id;  // User ID to unblock
+
+        // Find the user and update the isBlocked field to false
+        const updatedUser = await users.findByIdAndUpdate(
+            id, 
+            { isBlocked: false }, 
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
+        res.status(200).send({
+            message: 'User unblocked successfully',
+            data: updatedUser
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send({ message: 'Something went wrong', error: error.message });
+    }
+}];
 
 
 //view request upgrades

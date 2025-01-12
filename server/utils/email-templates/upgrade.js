@@ -68,3 +68,16 @@ exports.upgradeApprovalNotification = function (userName, companyName) {
     });
   };
   
+
+  exports.upgradeRejectionNotification = async (userName, companyName) => {
+    return `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2>Hi ${userName},</h2>
+            <p>We regret to inform you that your upgrade request for the company <strong>${companyName}</strong> has been rejected.</p>
+            <p>If you have any questions or believe this was a mistake, feel free to contact our support team.</p>
+            <p>Thank you for understanding.</p>
+            <p>Best regards,</p>
+            <p>The Team</p>
+        </div>
+    `;
+};

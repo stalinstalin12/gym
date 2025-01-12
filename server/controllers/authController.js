@@ -9,79 +9,88 @@ dotenv.config();
 
 exports.login = async function (req, res) {
     try {
-
         let email = req.body.email;
         console.log("email : ", email);
-        
 
         let password = req.body.password;
         console.log("password : ", password);
 
-        //Validations
-
-        let user = await users.findOne({email});
+        // Fetch the user based on the email
+        let user = await users.findOne({ email });
         console.log("user : ", user);
 
-        if(user) {
-
-            let _id = user._id;
-            console.log("userid :", _id);
-            
-            let user_type = user.user_type;
-            console.log("user_type :", user_type);
-
-            let db_password = user.password;
-            console.log("db_password : ", db_password);
-
-            let passwordMatch = bcrypt.compareSync(password, db_password);
-            console.log("passwordMatch : ", passwordMatch);
-
-            if(passwordMatch) {
-
-                let token = jwt.sign({user_id : user._id}, process.env.PRIVATE_KEY, {expiresIn : "100d"});
-                
-                let response = success_function({
-                    statusCode : 200,
-                    data : {token,
-                        _id,
-                        user_type
-                    },
-                    message : "Login successful",
-                });
-
-                res.status(response.statusCode).send(response);
-                return;
-            }else {
-
+        if (user) {
+            // Check if the user is blocked
+            if (user.isBlocked) {
                 let response = error_function({
-                    statusCode : 400,
-                    message : "Invalid password",
+                    statusCode: 403,
+                    message: "Your account is blocked. Please contact support.",
                 });
 
                 res.status(response.statusCode).send(response);
                 return;
             }
 
-        }else {
+            let _id = user._id;
+            console.log("userid :", _id);
+
+            let user_type = user.user_type;
+            console.log("user_type :", user_type);
+
+            let db_password = user.password;
+            console.log("db_password : ", db_password);
+
+            // Verify the password
+            let passwordMatch = bcrypt.compareSync(password, db_password);
+            console.log("passwordMatch : ", passwordMatch);
+
+            if (passwordMatch) {
+                // Generate a token for the user
+                let token = jwt.sign(
+                    { user_id: user._id },
+                    process.env.PRIVATE_KEY,
+                    { expiresIn: "100d" }
+                );
+
+                let response = success_function({
+                    statusCode: 200,
+                    data: {
+                        token,
+                        _id,
+                        user_type,
+                    },
+                    message: "Login successful",
+                });
+
+                res.status(response.statusCode).send(response);
+                return;
+            } else {
+                let response = error_function({
+                    statusCode: 400,
+                    message: "Invalid password",
+                });
+
+                res.status(response.statusCode).send(response);
+                return;
+            }
+        } else {
             let response = error_function({
-                statusCode : 404,
-                message : "User not found",
+                statusCode: 404,
+                message: "User not found",
             });
 
             res.status(response.statusCode).send(response);
             return;
         }
-        
     } catch (error) {
-        
         console.log("error : ", error);
 
         let response = error_function({
-            statusCode : 400,
-            message : error.message ? error.message : "Something went wrong",
+            statusCode: 400,
+            message: error.message ? error.message : "Something went wrong",
         });
 
         res.status(response.statusCode).send(response);
         return;
     }
-}
+};

@@ -10,6 +10,7 @@ const baseUrl = 'http://localhost:4000';
 
 const AdminHome = () => {
   const upgradeReqSection = useRef(null);
+  const [rejectError, setRejectError] = useState("");
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -19,6 +20,7 @@ const AdminHome = () => {
   const [error, setError] = useState(null);
   const [showUpgradeRequests, setShowUpgradeRequests] = useState(false); 
   const[approveError,setApproveError]=useState('')
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,6 +42,12 @@ const AdminHome = () => {
         setProducts(productsResponse.data.data);
         setUsers(userResponse.data.data);
         setUpgradeRequests(upgradeRequestsResponse.data.data);
+
+        const ordersData = ordersResponse.data.data;
+      setOrders(ordersData);
+        // Calculate total revenue from all orders
+      const revenue = ordersData.reduce((sum, order) => sum + order.total, 0);
+      setTotalRevenue(revenue);
 
         const startOfDay = new Date(); 
         startOfDay.setHours(0, 0, 0, 0); 
@@ -78,13 +86,25 @@ const AdminHome = () => {
       await axios.put(`${baseUrl}/approveUpgrade/${requestId}`,
          {}, { headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
          }); 
-  setUpgradeRequests(prevRequests => prevRequests.filter(request => request._id !== requestId)); 
-  setApproveError(null); } 
-  catch (err) { 
+      setUpgradeRequests(prevRequests => prevRequests.filter(request => request._id !== requestId)); 
+      setApproveError(null); } 
+    catch (err) { 
     setApproveError(err.response?.data?.message || err.message || "Something went wrong"); 
     console.log(approveError)
-  } 
-};
+    } 
+  };
+  const handleRejectRequest = async (requestId) => {
+    try {
+      await axios.delete(`${baseUrl}/rejectUpgrade/${requestId}`, {
+        headers: { Authorization: `bearer ${localStorage.getItem("authToken")}` }
+      });
+      setUpgradeRequests(prevRequests => prevRequests.filter(request => request._id !== requestId));
+      setRejectError(null);
+    } catch (err) {
+      console.log(rejectError);
+      setRejectError(err.response?.data?.message || err.message || "Something went wrong");
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -124,54 +144,61 @@ const AdminHome = () => {
             <p className="text-2xl">₹ {todayOrderSum}</p> 
             <p className="text-green-500">Total orders placed today</p> 
           </div>
+          <div className="bg-white p-4 shadow rounded-lg">
+    <h3 className="text-lg font-semibold">Total Revenue</h3>
+    <p className="text-2xl">₹ {totalRevenue}</p>
+    <p className="text-green-500">Revenue from all orders</p>
+  </div>
         </div>
 
         {showUpgradeRequests && (
-          <div ref={upgradeReqSection} className="mt-8 bg-white p-6 shadow rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Upgrade Requests</h3>
-            <table className="w-full text-left">
-              <thead>
-                <tr>
-                  <th className="py-2">User Name</th>
-                  <th className="py-2">Email</th>
-                  <th className="py-2">Company Name</th>
-                  <th className="py-2">License</th>
-                  <th className="py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {upgradeRequests.map((request) => (
-                  <tr key={request._id}>
-                    <td className="py-2">{request.userId.name}</td>
-                    <td className="py-2">{request.userId.email}</td>
-                    <td className="py-2">{request.companyName}</td>
-                    <td className="py-2">{request.license}</td>
-                    <td className="py-2">{request.status}</td>
-                    <td className="py-2"> 
-                      <button onClick={() => handleApproveRequest(request._id)} 
-                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700" > Approve </button> 
-                      </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        
-        {/* Sales Overview */}
-        {/* <div className="mt-8 bg-white p-6 h-96  shadow rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Sales Overview</h3>
-          <Line 
-            data={salesData}
-            options={{
-              responsive: true,
-              plugins: {
-                legend: { display: true, position: 'top' },
-                title: { display: true, text: 'Weekly Sales Overview' },
-              },
-            }}
-          />
-        </div> */}
+  <div
+    ref={upgradeReqSection}
+    className="mt-8 bg-white p-6 shadow rounded-lg overflow-x-auto"
+  >
+    <h3 className="text-lg font-semibold mb-4">Upgrade Requests</h3>
+    <table className="w-full text-left border-collapse">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="py-2 px-4 text-sm font-semibold">User Name</th>
+          <th className="py-2 px-4 text-sm font-semibold">Email</th>
+          <th className="py-2 px-4 text-sm font-semibold">Company Name</th>
+          <th className="py-2 px-4 text-sm font-semibold">License</th>
+          <th className="py-2 px-4 text-sm font-semibold">Status</th>
+          <th className="py-2 px-4 text-sm font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {upgradeRequests.map((request) => (
+          <tr
+            key={request._id}
+            className="border-b hover:bg-gray-50 transition"
+          >
+            <td className="py-2 px-4 text-sm">{request.userId.name}</td>
+            <td className="py-2 px-4 text-sm">{request.userId.email}</td>
+            <td className="py-2 px-4 text-sm">{request.companyName}</td>
+            <td className="py-2 px-4 text-sm">{request.license}</td>
+            <td className="py-2 px-4 text-sm">{request.status}</td>
+            <td className="py-2 px-4 text-sm flex flex-wrap gap-2">
+              <button
+                onClick={() => handleApproveRequest(request._id)}
+                className="bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleRejectRequest(request._id)}
+                className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
+              >
+                Reject
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
 
 
         {/* Sales by Country */}
