@@ -15,6 +15,8 @@ const Profile = () => {
     companyName: '',
     license: '',
   });
+  const [upgradeLoading, setUpgradeLoading] = useState(false); // New loading state for upgrade
+
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [upgradeSuccessMessage, setUpgradeSuccessMessage] = useState(null);
@@ -82,6 +84,7 @@ const Profile = () => {
 
   const handleUpgradeRequest = () => {
     if (token) {
+      setUpgradeLoading(true); // Set loading to true before sending the request
       axios
         .post(
           'http://localhost:4000/requestUpgrade',
@@ -95,12 +98,17 @@ const Profile = () => {
         .then(() => {
           setUpgradeSuccessMessage('Upgrade request submitted successfully');
           setError(null);
+          setUpgradeData({ companyName: '', license: '' }); // Reset the form
         })
         .catch((err) => {
           setError(err.response ? err.response.data.message : 'Something went wrong');
+        })
+        .finally(() => {
+          setUpgradeLoading(false); // Reset loading state after request completes
         });
     }
   };
+  
 
   if (error) {
     return (
@@ -220,11 +228,15 @@ const Profile = () => {
 
               {upgradeData.companyName && upgradeData.license && (
                 <button
-                  onClick={handleUpgradeRequest}
-                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 w-full sm:w-auto"
-                >
-                  Request Upgrade
-                </button>
+                onClick={handleUpgradeRequest}
+                disabled={upgradeLoading} // Disable button when loading
+                className={`bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 w-full sm:w-auto ${
+                  upgradeLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {upgradeLoading ? 'Submitting...' : 'Request Upgrade'}
+              </button>
+              
               )}
             </div>
           </div>
@@ -259,3 +271,4 @@ const Profile = () => {
 };
 
 export default Profile;
+ 

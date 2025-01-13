@@ -38,7 +38,7 @@ const AllProductsPage = () => {
     };
 
     fetchProducts();
-  }, []);
+  });
 
   const handleBlockProduct = async () => {
     if (!reason) {

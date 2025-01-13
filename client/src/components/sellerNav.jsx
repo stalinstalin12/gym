@@ -128,7 +128,7 @@ export default function SellerNav({ onSearch }) {
             className="flex items-center gap-2 hover:text-gray-300"
             onClick={() => setProfileOpen(!profileOpen)}
           >
-            <FontAwesomeIcon icon={faUser} className="text-" />
+            <FontAwesomeIcon icon={faUser} className="text-xl" />
           </button>
           {profileOpen && (
             <div className="absolute right-2 mt-2  bg-white text-black rounded shadow-lg z-50 p-2 w-32">
@@ -174,10 +174,10 @@ export default function SellerNav({ onSearch }) {
 
         {/* Cart Icon */}
         <Link to="/Cart">
-          <FontAwesomeIcon icon={faShoppingBag} className="text-" />
+          <FontAwesomeIcon icon={faShoppingBag} className="hover:text-green-500 text-xl" />
         </Link>
         <Link to="/wishlist">
-          <FontAwesomeIcon icon={faHeart} className="" />
+          <FontAwesomeIcon icon={faHeart} className="hover:text-red-500 text-xl" />
         </Link>
       </div>
     </nav>

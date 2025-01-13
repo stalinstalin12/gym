@@ -103,7 +103,6 @@ export default function Checkout() {
 
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2" htmlFor="address">
-              Shipping Address <br />
               <span className="text-sm">Select or enter your shipping address</span>
             </label>
             <select
@@ -146,40 +145,51 @@ export default function Checkout() {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white shadow-md mt-4 rounded-lg p-6 w-full lg:w-1/3">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Order Summary</h2>
+<div className="bg-white shadow-md rounded-lg p-6 w-full lg:w-1/3 mt-6 lg:mt-0 border border-gray-200">
+  <h2 className="text-2xl font-semibold text-gray-800 mb-6">Order Summary</h2>
 
-          <div className="text-gray-700 text-lg mb-4">
-            <p>
-              Total Items: <span className="font-bold">{cartItems.length}</span>
-            </p>
-            <p>
-              Bag Total: <span className="font-bold">₹{total.toFixed(2)}</span>
-            </p>
-            <p>
-              Convenience Fee: <span className="font-bold">₹19.00</span>
-            </p>
-            <p>
-              Delivery Fee: <span className="font-bold">Free</span>
-            </p>
-            <p>
-              Platform Fee: <span className="font-bold">₹29.00</span>
-            </p>
-            <p className="font-bold text-green-600">
-              Order Total: ₹{(total + 19 + 29).toFixed(2)}
-            </p>
-          </div>
+  <div className="text-gray-600 text-lg space-y-4">
+    <div className="flex justify-between">
+      <p>Total Items:</p>
+      <p className="font-medium">{cartItems.length}</p>
+    </div>
+    <div className="flex justify-between">
+      <p>Bag Total:</p>
+      <p className="font-medium">₹{total.toFixed(2)}</p>
+    </div>
+    <div className="flex justify-between">
+      <p>Convenience Fee:</p>
+      <p className="font-medium">₹19.00</p>
+    </div>
+    <div className="flex justify-between">
+      <p>Delivery Fee:</p>
+      <p className="font-medium">Free</p>
+    </div>
+    <div className="flex justify-between">
+      <p>Platform Fee:</p>
+      <p className="font-medium">₹29.00</p>
+    </div>
+    <hr className="my-4 border-gray-300" />
+    <div className="flex justify-between text-xl font-semibold text-gray-900">
+      <p>Order Total:</p>
+      <p className="text-green-600">₹{(total + 19 + 29).toFixed(2)}</p>
+    </div>
+  </div>
 
-          <button
-            className={`w-full py-3 px-4 rounded-lg font-medium text-white ${
-              loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-800"
-            }`}
-            onClick={handlePlaceOrder}
-            disabled={loading}
-          >
-            {loading ? "Placing Order..." : "Confirm Order"}
-          </button>
-        </div>
+  {/* Confirm Order Button */}
+  <button
+    className={`w-full py-3 px-6 mt-6 rounded-lg font-medium text-white transition duration-300 ease-in-out ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-800 active:bg-green-600"
+    }`}
+    onClick={handlePlaceOrder}
+    disabled={loading}
+  >
+    {loading ? "Placing Order..." : "Confirm Order"}
+  </button>
+</div>
+
       </div>
     </div>
   );

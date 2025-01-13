@@ -21,6 +21,51 @@ const AdminHome = () => {
   const [showUpgradeRequests, setShowUpgradeRequests] = useState(false); 
   const[approveError,setApproveError]=useState('')
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [topProducts, setTopProducts] = useState([]);
+  const token=localStorage.getItem('authToken')
+  useEffect(() => {
+    const fetchOrdersAndCalculateTopProducts = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/viewAllOrders`, {
+          headers: { Authorization: `bearer ${token}` },
+        });
+
+        const ordersData = response.data.data || [];
+        setOrders(ordersData);
+
+        // Calculate top-selling products
+        const productSales = {};
+        ordersData.forEach((order) => {
+          order.products.forEach((product) => {
+            const { productId, quantity } = product;
+
+            if (!productSales[productId._id]) {
+              productSales[productId._id] = {
+                productName: productId.title,
+                totalSold: 0,
+              };
+            }
+
+            productSales[productId._id].totalSold += quantity;
+          });
+        });
+
+        // Sort products by totalSold in descending order
+        const sortedProducts = Object.values(productSales).sort(
+          (a, b) => b.totalSold - a.totalSold
+        );
+
+        // Set the top 5 products
+        setTopProducts(sortedProducts.slice(0, 5));
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Failed to load orders.");
+        setLoading(false);
+      }
+    };
+
+    fetchOrdersAndCalculateTopProducts();
+  }, [token]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -199,37 +244,40 @@ const AdminHome = () => {
     </table>
   </div>
 )}
-
-
-        {/* Sales by Country */}
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Top-Selling Products Section */}
           <div className="bg-white p-6 shadow rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Sales by Country</h3>
-            <table className="w-full text-left">
-              <thead>
-                <tr>
-                  <th className="py-2">Country</th>
-                  <th className="py-2">Sales</th>
-                  <th className="py-2">Value</th>
-                  <th className="py-2">Bounce</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-2">United States</td>
-                  <td className="py-2">2,500</td>
-                  <td className="py-2">$230,900</td>
-                  <td className="py-2">29.9%</td>
-                </tr>
-                {/* Add more rows as needed */}
-              </tbody>
-            </table>
-          </div>
-          <div className="bg-white p-6 shadow rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4">Top Selling Products</h3>
+                      {topProducts.length > 0 ? (
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="py-2 px-4 text-sm font-semibold">Product Name</th>
+                              <th className="py-2 px-4 text-sm font-semibold">Quantity Sold</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {topProducts.map((product, index) => (
+                              <tr
+                                key={index}
+                                className="border-b hover:bg-gray-50 transition"
+                              >
+                                <td className="py-2 px-4 text-sm">{product.productName}</td>
+                                <td className="py-2 px-4 text-sm">{product.totalSold}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p>No top-selling products data available.</p>
+                      )}
+                    </div>
+
+        
+          <div className="bg-white mt-3 p-6 shadow rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Promotional Section</h3>
             <p className="text-gray-600">Get started with Flex. Theres nothing I really wanted to do in life that I wasnt able to get good at.</p>
           </div>
-        </div>
+       
       </main>
     </div>
   );

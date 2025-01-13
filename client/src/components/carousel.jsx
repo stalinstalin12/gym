@@ -30,8 +30,8 @@ const categories = [
   },
   {
     id: 5,
-    name: "CARDIO-EQUIPMENTS",
-    image: "images/gymbg2.webp",
+    name: "CARDIO",
+    image: "images/hard cardio.jpg",
     route: "cardio",
   },
 ];

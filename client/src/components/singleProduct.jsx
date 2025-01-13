@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import {  ToastContainer } from "react-toastify";
+import {  toast, ToastContainer } from "react-toastify";
 import { addToCart,fetchCartItems } from './cartUtil'; // Import the shared addToCart utility
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUndo,faExchange} from '@fortawesome/free-solid-svg-icons';
@@ -30,7 +30,7 @@ export default function ProductDetails() {
   const [cartItems, setCartItems] = useState([]);
   const [similarProducts, setSimilarProducts] = useState([]);
   const token = localStorage.getItem('authToken'); // Get the token from localStorage
-  
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const navigate =useNavigate();
 
   useEffect(() => {
@@ -151,7 +151,7 @@ const handleAddToCart = (productId) => {
   const handleBlockProduct = async () => {
     try {
       if (!blockReason) {
-        alert("Please provide a reason for blocking.");
+        toast.warning("Please provide a reason for blocking.");
         return;
       }
   
@@ -166,13 +166,13 @@ const handleAddToCart = (productId) => {
       );
   
       if (response.status === 200) {
-        alert("Product has been blocked successfully.");
+        toast.success("Product has been blocked successfully.");
         setIsBlockFormVisible(false);  // Hide the block form after submission
         // Optionally, you can update the product status in the UI here.
       }
     } catch (error) {
       console.error("Error blocking the product:", error);
-      alert("Failed to block the product. Please try again.");
+      toast.error("Failed to block the product. Please try again.");
     }
   };
   
@@ -289,9 +289,28 @@ const handleAddToCart = (productId) => {
           </p>
 
           {/* Description */}
-          <p className="text-gray-700 mb-4 font-mono">
-            <strong className="font-sans">Description:</strong> {product.description}
-          </p>
+          <div>
+      <p className="text-gray-700 mb-4 font-mono">
+        <strong className="font-sans">Description:</strong>{" "}
+        <span>
+          {product.description && product.description.length > 100 ? (
+            <span>
+              {showFullDescription
+                ? product.description
+                : `${product.description.slice(0, 100)}...`}
+              <button
+                className="text-blue-600 font-semibold ml-2 hover:underline"
+                onClick={() => setShowFullDescription(!showFullDescription)}
+              >
+                {showFullDescription ? "Read Less" : "Read More"}
+              </button>
+            </span>
+          ) : (
+            product.description || "No description available"
+          )}
+        </span>
+      </p>
+    </div>
 
           {/* Stock Status */}
           <div className="text-black flex gap-3 mb-4">
@@ -308,6 +327,10 @@ const handleAddToCart = (productId) => {
 
           {/* Action Buttons */}
           <div className="flex flex-col ml-36">
+            {/* Check if token exists in localStorage */}
+  {localStorage.getItem("authToken") && (
+    <>
+
             {/* Block Product Button (visible only to admin) */}
             {userType === "674ddd8ada8e8225185e33b6" && (  
               <button
@@ -389,7 +412,8 @@ const handleAddToCart = (productId) => {
     {isInCart(product._id) ? "Go to Cart" : "Add to Cart"}
   </button>
 )}
-
+</>
+  )}
 
           </div>
 

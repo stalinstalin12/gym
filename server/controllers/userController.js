@@ -345,17 +345,28 @@ exports.updateUser = [authenticate, async function (req, res) {
 }];
 
 //upgrade seller request
-exports.requestUpgrade =[authenticate, async (req, res) => {
-    try { const userId = req.user.id;
-        const { companyName, license } = req.body;
-        const newRequest = new UpgradeRequest({ userId, companyName, license, status: 'pending' });
-        const savedRequest = await newRequest.save();
-        res.status(201).send({ message: 'Upgrade request submitted successfully', data: savedRequest });
-    } 
-    catch (error) {
-         res.status(500).send({ message: 'Something went wrong', error: error.message });
-    } 
-}];
+exports.requestUpgrade = [authenticate, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { companyName, license } = req.body;
+  
+      // Check if the user already has a pending or completed upgrade request
+      const existingRequest = await UpgradeRequest.findOne({ userId, status: { $in: ['pending', 'completed'] } });
+  
+      if (existingRequest) {
+        return res.status(400).send({ message: 'You have already submitted an upgrade request.' });
+      }
+  
+      // Create a new upgrade request if no existing request is found
+      const newRequest = new UpgradeRequest({ userId, companyName, license, status: 'pending' });
+      const savedRequest = await newRequest.save();
+  
+      res.status(201).send({ message: 'Upgrade request submitted successfully', data: savedRequest });
+    } catch (error) {
+      res.status(500).send({ message: 'Something went wrong', error: error.message });
+    }
+  }];
+  
 
 //aprove upgrade
 exports.approveUpgrade = [authenticate, async (req, res) => { 

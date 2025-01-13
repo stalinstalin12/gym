@@ -8,8 +8,6 @@ import {
   // faSearch,
   faShoppingBag,
   faHeart,
-  faArrowLeft,
-  faArrowRight,
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function SubNav() {
@@ -25,6 +23,9 @@ export default function SubNav() {
 
   // Determine home path based on user type
   const getHomePath = () => {
+    if(!(localStorage.getItem('authToken'))){
+      return '/home';
+    }
     const usertype = localStorage.getItem('user_type');
     if (usertype === '6738b70b20495c12314f4c4f') {
       return '/sellerHome'; // Seller home
@@ -37,13 +38,7 @@ export default function SubNav() {
   return (
     <nav className="bg-gray-900 text-white flex items-center justify-between p-4">
       <div className='flex gap-5'>
-      <button
-          className="text-white px-3 py-1 bg-transparent rounded-lg hover:bg-white hover:text-black"
-          onClick={() => window.history.back()}
-          disabled={window.history.length <= 1} // Disable if there's no previous page
-        >
-          <FontAwesomeIcon icon={faArrowLeft} />
-        </button>
+      
       {/* Brand Name */}
       <Link to={getHomePath()}>
       <h1 className="text-lg font-mono brandname">Flex Fitness</h1>
@@ -107,12 +102,7 @@ export default function SubNav() {
         <Link to="/wishlist">
           <FontAwesomeIcon icon={faHeart} className="text-xl text-white" />
         </Link>
-        <button
-          className="text-white px-3 py-1 bg-transparent rounded-lg hover:bg-white hover:text-black"
-          onClick={() => window.history.forward()}
-        >
-          <FontAwesomeIcon icon={faArrowRight} />
-        </button>
+        
       </div>
     </nav>
   );

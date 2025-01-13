@@ -80,6 +80,39 @@ const Wishlist = () => {
   const navigateToProductDetails = (productId) => {
     navigate(`/product/${productId}`); // Navigate to the product details page
   };
+  if (!(localStorage.getItem('authToken'))) {
+      return (
+        <div className="flex justify-center items-center min-h-screen bg-gray-50">
+          <div className="text-center p-8 bg-white shadow-lg rounded-lg max-w-sm">
+            <FontAwesomeIcon
+              icon={faHeartBroken}
+              className="text-red-500 text-5xl mb-4"
+            />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Please Log In
+            </h2>
+            <p className="text-gray-600 mb-4">
+              You need to log in to view and manage your Wishlist.
+            </p>
+            <button
+              onClick={() => navigate("/Signin")}
+              className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700"
+            >
+              Log In
+            </button>
+            <p className="text-sm text-gray-500 mt-3">
+              Dont have an account?{" "}
+              <Link
+                to="/signup"
+                className="text-red-600 hover:underline font-medium"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
+        </div>
+      );
+    }
 
   return (
     <div><SubNav />

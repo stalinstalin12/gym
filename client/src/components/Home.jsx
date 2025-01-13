@@ -183,7 +183,7 @@ export default function Home() {
                       ) : (
                         <p className="text-green-600 font-semibold">In Stock</p>
                       )}
-                      <div className="flex justify-between mt-2">
+                      {/* <div className="flex justify-between mt-2">
                         <button
                           onClick={() => handleAddToCart(product._id)}
                           className={`p-2 h-9 w-9 rounded-full ${product.stock === 0 || product.stock == null ? 'bg-gray-400 cursor-not-allowed' : (isInCart(product._id) ? 'bg-green-600 hover:bg-green-700' : 'bg-black hover:bg-gray-700')}`}
@@ -201,13 +201,28 @@ export default function Home() {
                         >
                           <FontAwesomeIcon icon={faHeart} className="text-white text-lg" />
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
+        </div>
+
+        {/* Special Offer Banner */}
+        <div className="bg-yellow-100 border-2 border-yellow-500 text-yellow-700 p-4 rounded-md shadow-md mx-auto mt-2 container">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-semibold text-lg">Special Offer!</p>
+              <p>
+                Join now and get <span className="font-bold">50% off</span> on your first order.
+              </p>
+            </div>
+            <div className="bg-green-500 text-white px-4 py-2 rounded-md shadow-md font-semibold text-sm">
+              Use Code: <span className="font-bold">FLEX100 - <br /> To avail an instant discount of Rs 100</span>
+            </div>
+          </div>
         </div>
 
           {/* Filters Section */}
